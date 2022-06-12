@@ -1,0 +1,48 @@
+The main difference between ACE and ECCE that I have identified are:
+
+Special Commands
+ECCE does not allow regular commands and special commands to be mixed
+in the same command line. ACE does allow commands to be mixed.
+
+Searching Backwards
+In ACE F- leaves the cursor before the start of the text as "viewed" from 
+the start of the file, while in ecce leaves the cursor before text as "viewed" 
+with respect to the direction of search, i.e. after the search text.
+
+In ACE T- leaves the cursor after the end of the text as "viewed" from the
+start of the file, while in ecce leaves the cursor after text as "viewed" 
+with respect to the direction of search, i.e. before the search text.
+
+ACE  F-/.../  is equivilent to  ECCE  T-*/.../
+ACE  T-/.../  is equivilent to  ECCE  F-1/.../
+
+
+Left and Right. 
+While ECCE interprets L- as R  and interprets R- as L,  ACE does not.
+
+Upper/Lower Case
+ACE provides command to convert up upper case (H) and to lower case (H-).
+ECCE uses C for upper case, and C- for upper case backwards
+
+Qualifiers
+ECCE Uses '\' and '?' to invert the command success and forces a no fail 
+status repectively. ACE allows these, however also allows '~' and '@'
+for invert and no fail repectively.
+[On the GEC 4000 series both '\' and '?' where special characters.]
+
+Comments
+ACE Allows comments on the commands stream introduced by unquoted '#' or ';'
+
+Repeat Last Command
+ECCE repeats the last command N times when the sole entry on the command line 
+is an integer number. ACE does not, hoewever ACE does provide command history
+and command editing à la bash.
+
+
+Size/Implementation
+ECCE is 1863 lines,  885 statements, of C code, while 
+ACE  is 4177 lines, 1424 statements, of C++ code.
+
+Note:
+ECCE - Edinburgh Compatible Context Editor
+ACE  - ACE Context Editor

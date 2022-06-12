@@ -1,0 +1,12 @@
+obj/
+*.o
+*.local
+*.creator.user
+*~
+*.backup
+build_datetime.cpp
+ace
+a.out
+a.cpp
+z*
+_*

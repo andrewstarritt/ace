@@ -1,0 +1,5 @@
+[32;1mace[00m  Copyright (C) 1980-2022 Andrew Starritt
+The [32;1mace[00m program comes with ABSOLUTELY NO WARRANTY, for details run 'ace --warranty'.
+This is free software, and you are welcome to redistribute it under the conditions 
+specified in the GNU GENERAL PUBLIC LICENSE, Version 3.
+Use option -q to suppress this message.

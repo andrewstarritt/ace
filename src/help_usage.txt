@@ -1,0 +1,6 @@
+usage:  ace OPTIONS FROM [TO]
+        ace -s, --shell
+        ace -h, --help
+        ace -l, --license
+        ace -v, --version
+        ace -w, --warranty
