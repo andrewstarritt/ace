@@ -1,42 +1,48 @@
-Options
--c, --command file   defines command input file, default is standard in.
-
--r, --report file    defines report output file, default is standard out.
-
--o, --option string  initial command string, e.g. %Q.
-
--b, --backup file    defines command backup file. No default, there is no
-                     command backup if not specified.
-
--s, --shell          ace used as shell interpretor, i.e. used in script file thus:
-
-                         #!/usr/local/bin/ace -s
-
-                     The from file is set to standard input, the target file is
-                     set to standard output. All reports are sent to /dev/null
-
--q, --quiet          quiet, i.e. suppress output of copyright info on program start.
-
--l, --license        display licence information and exit.
-
--v, --version        display verion information and exit.
-
--w, --warranty       show warranty info and exit.
-
--h, --help           display this helpinformation and exit.
-
---                   null option indicatng the end of the options. This is
-                     usefull if/when the FROM and/or TO parameter "looks like"
-                     an option.          
-
-Parameters
+Parameters:
 FROM    source file to be edited. If FROM is specified as '-', the input is
-        taken from for standard input. If the name is actually '-', then it
-        should be refered to by its absolute path name or './-'.
+        taken from for standard input. If the filename is literally '-', then
+        it should be refered to by its absolute path name or by './-'.
 
 TO      target file of the edited output. The TO parameter defaults to FROM.
         If is TO is the same as FROM then a back of FROM is created call FROM~ 
         If TO is specified as '-', the output is sent to standard output.
+
+Options:
+-c, --command    defines command input file, default is standard in.
+
+-r, --report     defines report output file, default is standard out.
+
+-o, --option     initial command string, e.g. %Q.
+
+-b, --backup     defines command backup file. No default, there is no
+                 command backup if not specified.
+
+-s, --shell      ace used as shell interpretor, i.e. used in script file thus:
+
+                     #!/usr/local/bin/ace -s
+
+                 The from file is set to standard input, the target file is
+                 set to standard output. All reports are sent to /dev/null
+
+-q, --quiet      quiet, i.e. suppress output of copyright info on program start.
+                 See enviromment variables section below.
+
+-l, --license    display licence information and exit.
+
+-v, --version    display verion information and exit.
+
+-w, --warranty   show warranty info and exit.
+
+-h, --help       display this helpinformation and exit.
+
+--               null option indicatng the end of the options. This is
+                 usefull if/when the FROM and/or TO parameter "looks like"
+                 an option.          
+
+
+Enviromment Variables:
+ACE_QUIET        When defined to be '1', "Y' or 'y', this is the same as using
+                 the quiet option described above.
 
 
 More detailed help information is available using the following
@@ -46,5 +52,5 @@ ace --help info        - provides historical info
 ace --help syntax      - provides general command syntax
 ace --help commands    - provides a list of all the commands
 ace --help command     - provides detail info for a specified command
-ace --help ecce        - provides a comparision with ecce
+ace --help ecce        - provides a comparision with ECCE.
 

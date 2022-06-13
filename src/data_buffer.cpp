@@ -922,9 +922,14 @@ bool DataBuffer::printDirection (const Direction direction, const int number)
 {
    bool result = true;
 
+   // Colourise the cursor.
+   //
+   const std::string cm = "\033[31;1m" + Global::getCursorMark() + "\033[00m";
    const int n = this->data.size();
-   char format [32];
 
+   // Setup the format string for consistant line number widths.
+   //
+   char format [32];
    if (Global::getShowLineNumbers()) {
       int m;
       if (n < 10) {
@@ -940,6 +945,9 @@ bool DataBuffer::printDirection (const Direction direction, const int number)
       } else {
          m = 6;
       }
+
+      // Colourise the line numbers - not so good on a white screen.
+      //
       snprintf (format, sizeof (format), "\033[33;1m%%%dd\033[00m ", m);
    }
 
@@ -961,7 +969,9 @@ bool DataBuffer::printDirection (const Direction direction, const int number)
       }
 
       if (this->lineIter == this->data.end ()){
-         std::cerr << lnb << "**END**" << std::endl;
+         // Colourise the **END**
+         //
+         std::cerr << lnb << "\033[32;1m**END**\033[00m" << std::endl;
 
       } else {
          const std::string line = this->currentLine ();
@@ -970,7 +980,7 @@ bool DataBuffer::printDirection (const Direction direction, const int number)
          } else {
             const std::string part1 = line.substr (0, this->colNo);
             const std::string part2 = line.substr (this->colNo);
-            std::cerr << lnb << part1 << '^' << part2 << std::endl;
+            std::cerr << lnb << part1 << cm << part2 << std::endl;
          }
       }
       this->clearChanged ();
@@ -1027,7 +1037,8 @@ bool DataBuffer::quaryBack (const int number)
 
 //------------------------------------------------------------------------------
 //
-bool DataBuffer::substitute (const std::string text)
+bool DataBuffer::substituteDirection (const Direction direction,
+                                      const std::string text)
 {
    if (this->lineIter == this->data.end ()) return false;
 
@@ -1044,7 +1055,9 @@ bool DataBuffer::substitute (const std::string text)
    const std::string part2 = line.substr (from);  // to end of the line
 
    this->replaceLine (part1 + text + part2);
-   this->colNo += text.length();
+   if (direction == Forward) {
+      this->colNo += text.length();
+   }
    this->setChanged ();
 
    return true;
@@ -1052,27 +1065,16 @@ bool DataBuffer::substitute (const std::string text)
 
 //------------------------------------------------------------------------------
 //
+bool DataBuffer::substitute (const std::string text)
+{
+   return this->substituteDirection (Forward, text);
+}
+
+//------------------------------------------------------------------------------
+//
 bool DataBuffer::substituteBack (const std::string text)
 {
-   if (this->lineIter == this->data.end ()) return false;
-
-   if (this->lastSearchType == stVoid) return false;
-
-   const std::string line = this->currentLine ();
-
-   // We should not need this MIN check here, but does no harm.
-   //
-   const std::string::size_type replaceLen = this->lastSearchText.length ();
-   const int from = MIN (line.length(), this->colNo + replaceLen);
-
-   const std::string part1 = line.substr (0, this->colNo);
-   const std::string part2 = line.substr (from);  // to end of the line
-
-   this->replaceLine (part1 + text + part2);
-   /// this->colNo += text.length();
-   this->setChanged ();
-
-   return true;
+   return this->substituteDirection (Reverse, text);
 }
 
 //------------------------------------------------------------------------------

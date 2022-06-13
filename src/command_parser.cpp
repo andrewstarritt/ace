@@ -213,8 +213,9 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
      "Less than <repeat> characters to the end of the line or\n"
      "cursor is at end of line or at end of file."},
    { BC::SubstituteBack,  "SubstituteBack",  Txt | Mod,
-     "???",
-     "???" },
+     "Replace just found text with specified text, cursor\n"
+     "is placed to the right of the replacement text.",
+     "Previous Find, Uncover, or Verify command failed." },
    { BC::TraverseBack,    "TraverseBack",    Lim | Txt | Rep | Mod,
      "Find after previous occurance of specified /text/, cursor located to right of text.",
      "Specified text does not occur in file before current location." },
@@ -426,6 +427,7 @@ void CommandParser::commandSummary (std::ostream& stream)
    stream << ")  : End Compound       ";
    stream << ",  : Alternative" << std::endl;
 
+   stream << std::endl;
 }
 
 //------------------------------------------------------------------------------

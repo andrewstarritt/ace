@@ -42,6 +42,8 @@ std::string Global::lastModify   = "";
 std::string Global::lastSearch   = "";
 std::string Global::lastFilename = "";
 
+std::string Global::cursorMark   = "^";
+
 Global::Modes Global::mode     = Global::Monitor;
 bool          Global::promptOn = true;
 bool          Global::lineNumbers = false;
@@ -293,6 +295,24 @@ void Global::setRepeatMax (const int max)
 int Global::getRepeatMax ()
 {
    return Global::repeatMax;
+}
+
+//------------------------------------------------------------------------------
+//
+void Global::setCursorMark (const std::string text)
+{
+   if (text.length() >= 1) {
+      Global::cursorMark = text.substr (0, 1);
+   } else {
+      Global::cursorMark = "^";   // reset default
+   }
+}
+
+//------------------------------------------------------------------------------
+//
+std::string Global::getCursorMark ()
+{
+   return Global::cursorMark;
 }
 
 //------------------------------------------------------------------------------

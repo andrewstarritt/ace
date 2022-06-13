@@ -140,13 +140,14 @@ private:
 
    // Combined functionality where forward and reverse are similar.
    //
-   bool absorbeDirection (const Direction direction, const int number);
-   bool breakDirection   (const Direction direction, const int number);
-   bool getDirection     (const Direction direction, const int number);
-   bool insertDirection  (const Direction direction,
-                          const std::string text, const int number);
-   bool printDirection   (const Direction direction, const int number);
-   bool writeDirection   (const Direction direction, const int number);
+   bool absorbeDirection    (const Direction direction, const int number);
+   bool breakDirection      (const Direction direction, const int number);
+   bool getDirection        (const Direction direction, const int number);
+   bool insertDirection     (const Direction direction,
+                             const std::string text, const int number);
+   bool printDirection      (const Direction direction, const int number);
+   bool substituteDirection (const Direction direction, const std::string text);
+   bool writeDirection      (const Direction direction, const int number);
 
 
    StringList data;

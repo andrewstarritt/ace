@@ -1,17 +1,85 @@
-The main difference between ACE and ECCE that I have identified are:
+My 1980 memory of ECCE provided the requirement specification for ACE.
+
+ACE was modified to allow & to represent the last search for text, such
+that, for example:
+
+    f/sometext/ m4 v/sometext/
+
+is equivilent to:
+
+    f/sometext/ m4 v&
+
+Delete, Find, Traverse, Uncover and Verify all set/use the same global 
+last search text. Likewise Insert and Substitute set/use the same last 
+inserted/modified text and Connect and Output set/use the same filename
+text. See Quary and %Exchange below how these can be modified.
+
+The following commands were added to ACE.
+
+A  : Absorbe - get line from secondary input file
+C  : Connect - open secondary input file
+H  : UpperCase - convert to upper case
+N  : Now - insert current date time
+O  : Output - create secondary input file
+Q  : Quary - capture n character as last insert text.
+W  : Write - put line to secondary output file
+
+The following back/reverse commands were added:
+
+D- : DeleteBack
+F- : FindBack
+H- : LowerCase (in forward direction)
+K- : KillBack
+T- : TraverseBack
+U- : UncoverBack
+V- : VerifyBack
+
+These turned out very similar to the backwards command subsequently 
+re-discovered in ECCE (great minds think alike), however read the 
+searching backwards notes below.
+
+For release 3, the following commands have also been added. These are 
+alligned with the functionality re-discovered in ECCE.
+
+A- : AbsorbeBack
+B- : BreakLineBack
+G- : GetBack
+I- : InsertBack
+J- : JoinBack
+P- : PrintBack
+Q- : QuaryBack
+S- : SubstituteBack
+W- : WriteBack
+
+The following special commands have been added to ACE.
+
+%E : Exchange   - swap last found text and last inserted text strings.
+%L : LimitSet   - re-define the of number of lines searched for text.
+%N : Numbers    - toggle on/off line number includsion with P/P-.
+%P : Prompt     - toggle off/on the '>' command prompt
+%R : RepeatSet  - re-define the of number repeats associated with '*' or '0'.
+%S : SetMark    - Modify the cursor character - default is ^.
+%T : TerminalMaxSet - set max output length used by the P/P- commands.
+%V : View       - display macro values, last search/insert/file strings, 
+                  toggle flags, repeat limit, search limit, terminal max.
+%X : DefineX    - defines macro X.
+%Y : DefineY    - defines macro Y.
+%Z : DefineZ    - defines macro Z.
+
 
 Special Commands
 ECCE does not allow regular commands and special commands to be mixed
-in the same command line. ACE does allow commands to be mixed.
+in the same command line. ACE does allow commands to be mixed. Special 
+commands do not fail per se, nor may they be repeated or qualified.
 
 Searching Backwards
 In ACE F- leaves the cursor before the start of the text as "viewed" from 
-the start of the file, while in ecce leaves the cursor before text as "viewed" 
+the start of the file, while in ECCE leaves the cursor before text as "viewed" 
 with respect to the direction of search, i.e. after the search text.
 
-In ACE T- leaves the cursor after the end of the text as "viewed" from the
-start of the file, while in ecce leaves the cursor after text as "viewed" 
-with respect to the direction of search, i.e. before the search text.
+Likewise, in ACE T- leaves the cursor after the end of the text as "viewed" 
+from the start of the file, while in ecce leaves the cursor after text as
+"viewed" with respect to the direction of search, i.e. before the search text.
 
 ACE  F-/.../  is equivilent to  ECCE  T-*/.../
 ACE  T-/.../  is equivilent to  ECCE  F-1/.../
@@ -21,12 +89,12 @@ Left and Right.
 While ECCE interprets L- as R  and interprets R- as L,  ACE does not.
 
 Upper/Lower Case
-ACE provides command to convert up upper case (H) and to lower case (H-).
-ECCE uses C for upper case, and C- for upper case backwards
+ACE provides commands to convert up upper case (H) and to lower case (H-).
+ECCE uses C for upper case, and C- for upper case backwards.
 
 Qualifiers
 ECCE Uses '\' and '?' to invert the command success and forces a no fail 
-status repectively. ACE allows these, however also allows '~' and '@'
+status repectively. ACE allows these, however it also allows '~' and '@'
 for invert and no fail repectively.
 [On the GEC 4000 series both '\' and '?' where special characters.]
 
@@ -35,14 +103,14 @@ ACE Allows comments on the commands stream introduced by unquoted '#' or ';'
 
 Repeat Last Command
 ECCE repeats the last command N times when the sole entry on the command line 
-is an integer number. ACE does not, hoewever ACE does provide command history
+is an integer number. ACE does not, however ACE does provide command history
 and command editing à la bash.
-
 
 Size/Implementation
 ECCE is 1863 lines,  885 statements, of C code, while 
-ACE  is 4177 lines, 1424 statements, of C++ code.
+ACE  is 4307 lines, 1424 statements, of C++ code.
 
 Note:
 ECCE - Edinburgh Compatible Context Editor
 ACE  - ACE Context Editor
+

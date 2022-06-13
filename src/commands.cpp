@@ -407,7 +407,8 @@ bool BasicCommands::execute (DataBuffer& db)
          break;
 
       case SetMark:
-         result = false;
+         Global::setCursorMark (text);
+         result = true;
          break;
 
       case TerminalMaxSet:
@@ -421,17 +422,35 @@ bool BasicCommands::execute (DataBuffer& db)
          break;
 
       case DefineX:
-         Global::setMacroX (text);
+         if (text.length() > 0) {
+            Global::setMacroX (text);
+         } else {
+            const Global::GetLineFuncPtr getLine = Global::getGetLineFunc ();
+            std::string line = getLine ("X? ");
+            Global::setMacroX (line);
+         }
          result = true;
          break;
 
       case DefineY:
-         Global::setMacroY (text);
+         if (text.length() > 0) {
+            Global::setMacroY (text);
+         } else {
+            const Global::GetLineFuncPtr getLine = Global::getGetLineFunc ();
+            std::string line = getLine ("Y? ");
+            Global::setMacroY (line);
+         }
          result = true;
          break;
 
       case DefineZ:
-         Global::setMacroZ (text);
+         if (text.length() > 0) {
+            Global::setMacroZ (text);
+         } else {
+            const Global::GetLineFuncPtr getLine = Global::getGetLineFunc ();
+            std::string line = getLine ("Z? ");
+            Global::setMacroZ (line);
+         }
          result = true;
          break;
 

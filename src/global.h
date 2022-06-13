@@ -82,6 +82,9 @@ public:
    static void setRepeatMax (const int max);
    static int getRepeatMax ();
 
+   static void setCursorMark (const std::string text);
+   static std::string getCursorMark ();
+
    static void setTerminalMax (const int max);
    static int getTerminalMax ();
 
@@ -116,6 +119,7 @@ private:
    static Modes mode;
    static bool promptOn;
    static bool lineNumbers;
+   static std::string cursorMark;
 
    static int searchMax;
    static int repeatMax;

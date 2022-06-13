@@ -88,7 +88,8 @@ static void help (int argc, char** argv)
 
    if ((option == "none") || (option == "")) {
       version (std::cout);
-      std::cout << "ace is a command line editor." << std::endl;
+      std::cout << "ace is a command line editor, based on the Edinburgh Compatible" << std::endl;
+      std::cout << "Context Editor (ECCE) written by Hamish Dewar." << std::endl;
       std::cout << std::endl;
       std::cout << "Copyright (C) 1980-2022  Andrew C. Starritt" << std::endl;
       std::cout << std::endl;
@@ -250,7 +251,6 @@ int main (int argc, char** argv)
    const unsigned meg2 = ofTheLot ^ ofShell;
 
    unsigned optionFlags = ofNone;
-
    bool shellInterpretor = false;
    bool suppressCopyRight = false;
    std::string command;
@@ -282,6 +282,12 @@ int main (int argc, char** argv)
    argv += 2;                                                            \
 }
 
+   // Allow environment variable to override the default.
+   //
+   std::string aq = getenv("ACE_QUIET");
+   if (aq == "1" || aq == "Y" || aq == "y") {
+      suppressCopyRight = true;
+   }
 
    // Parse options/arguments.
    //

@@ -34,13 +34,14 @@ class DataBuffer;   // differed
 //
 class AbstractCommands {
 public:
-
+   // Controls how a command execution status is modified.
+   //
    enum Modifiers {
-      Normal,
+      Normal,  // No modification.
       AMTAP,   // As many times as possible without failure.
                // In practice limited to 10K to avoid infinite loops.
-      NoFail,  // ? or @
-      Invert   // \ or ~
+      NoFail,  // ? or @ qualifier
+      Invert   // \ or ~ qualifier
    };
 
    explicit AbstractCommands (const int number, const Modifiers modifier);
@@ -58,8 +59,7 @@ protected:
 
 //------------------------------------------------------------------------------
 //
-class BasicCommands : public AbstractCommands
-{
+class BasicCommands : public AbstractCommands {
 public:
    enum Kinds {
       Void = 0,
