@@ -21,7 +21,7 @@ C  : Connect - open secondary input file
 H  : UpperCase - convert to upper case
 N  : Now - insert current date time
 O  : Output - create secondary input file
-Q  : Quary - capture n character as last insert text.
+Q  : Quary - capture next N characters as last insert text.
 W  : Write - put line to secondary output file
 
 The following back/reverse commands were added:
@@ -35,8 +35,8 @@ U- : UncoverBack
 V- : VerifyBack
 
 These turned out very similar to the backwards command subsequently 
-re-discovered in ECCE (great minds think alike), however read the 
-searching backwards notes below.
+re-discovered in ECCE (great minds think alike), however please read 
+the searching backwards notes below.
 
 For release 3, the following commands have also been added. These are 
 alligned with the functionality re-discovered in ECCE.
@@ -62,9 +62,9 @@ The following special commands have been added to ACE.
 %T : TerminalMaxSet - set max output length used by the P/P- commands.
 %V : View       - display macro values, last search/insert/file strings, 
                   toggle flags, repeat limit, search limit, terminal max.
-%X : DefineX    - defines macro X.
-%Y : DefineY    - defines macro Y.
-%Z : DefineZ    - defines macro Z.
+%X : DefineX    - defines macro X. Takes a string %X/.../ as opposed %X=...
+%Y : DefineY    - defines macro Y. Ditto.
+%Z : DefineZ    - defines macro Z. Ditto.
 
 
 Special Commands
@@ -84,7 +84,6 @@ from the start of the file, while in ecce leaves the cursor after text as
 ACE  F-/.../  is equivilent to  ECCE  T-*/.../
 ACE  T-/.../  is equivilent to  ECCE  F-1/.../
 
-
 Left and Right. 
 While ECCE interprets L- as R  and interprets R- as L,  ACE does not.
 
@@ -98,6 +97,10 @@ status repectively. ACE allows these, however it also allows '~' and '@'
 for invert and no fail repectively.
 [On the GEC 4000 series both '\' and '?' where special characters.]
 
+Command Sequences
+ACE does not allow two or more distinct command sequences on the same line,
+where as ECCE allows  sequence1 ; sequence2 etc.
+
 Comments
 ACE Allows comments on the commands stream introduced by unquoted '#' or ';'
 
@@ -108,7 +111,7 @@ and command editing à la bash.
 
 Size/Implementation
 ECCE is 1863 lines,  885 statements, of C code, while 
-ACE  is 4307 lines, 1424 statements, of C++ code.
+ACE  is 4344 lines, 1435 statements, of C++ code.
 
 Note:
 ECCE - Edinburgh Compatible Context Editor

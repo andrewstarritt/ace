@@ -22,7 +22,8 @@ Options:
                      #!/usr/local/bin/ace -s
 
                  The from file is set to standard input, the target file is
-                 set to standard output. All reports are sent to /dev/null
+                 set to standard output. Command are read from the script file,
+                 and all reports are sent to /dev/null
 
 -q, --quiet      quiet, i.e. suppress output of copyright info on program start.
                  See enviromment variables section below.
@@ -41,7 +42,7 @@ Options:
 
 
 Enviromment Variables:
-ACE_QUIET        When defined to be '1', "Y' or 'y', this is the same as using
+ACE_QUIET        When defined to be '1', 'Y' or 'y', this is the same as using
                  the quiet option described above.
 
 
