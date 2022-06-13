@@ -2,7 +2,7 @@
  *
  * This file is part of the ACE command line editor.
  *
- * Copyright (C) 1980-2021  Andrew C. Starritt
+ * Copyright (C) 1980-2022  Andrew C. Starritt
  *
  * The ACE program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
@@ -71,7 +71,7 @@ PUT_RESOURCE (warranty,       warranty_txt)
 //
 static void version (std::ostream& stream)
 {
-   stream << "Ace Linux Version 3.1.1  Build " << build_datetime() << std::endl;
+   stream << "Ace Linux Version 3.1.2  Build " << build_datetime() << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -492,15 +492,21 @@ int main (int argc, char** argv)
          db.clearChanged ();   // clear the "dirty" flag.
          Global::clearInterruptRequest();
          bool status = doThis->execute (db);
+         AbstractCommands* lastCommand = doThis->getLastCommand();
+         BasicCommands* blc = dynamic_cast <BasicCommands*> (lastCommand);
          if (!status) {
-            AbstractCommands* lastCommand = doThis->getLastCommand();
             std::string image = lastCommand ? lastCommand->image() : "None";
             std::cerr << "Command failure: " << image << std::endl;
          }
 
          switch (Global::getMode()) {
             case Global::Full:
-               db.print (1);
+               // Alays print line (unless last command was a print).
+               //
+               if (!blc || ((blc->getKind() != BasicCommands::Print) &&
+                            (blc->getKind() != BasicCommands::PrintBack))) {
+                  db.print (1);
+               }
                break;
 
             case Global::Quiet:

@@ -13,7 +13,7 @@ The repeat, if allowed, is optional. It specifies the number of times that
 the command is to be executed.
 
 The qualifier (also optional) is a single character, one of {'\','~','@','?'}.
-'\' and '~' inverts the command success status while '@' or '?' forces a
+'\' and '~' inverts the command success status while '@' and '?' forces a
 no fail status.
 
 '*' or '0' may be used as a combined repeat qualified and is equivilent 

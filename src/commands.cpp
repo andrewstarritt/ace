@@ -2,7 +2,7 @@
  *
  * This file is part of the ACE command line editor.
  *
- * Copyright (C) 1980-2021  Andrew C. Starritt
+ * Copyright (C) 1980-2022  Andrew C. Starritt
  *
  * The ACE program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
@@ -96,6 +96,11 @@ BasicCommands::BasicCommands (const Kinds kindIn, const Modifiers modifierIn,
 BasicCommands::~BasicCommands()
 { }
 
+//------------------------------------------------------------------------------
+//
+BasicCommands::Kinds BasicCommands::getKind() const {
+   return this->kind;
+}
 
 //------------------------------------------------------------------------------
 // override
@@ -280,6 +285,10 @@ bool BasicCommands::execute (DataBuffer& db)
          this->useText = this->useLastText ? Global::getLastSearch() : this->text;
          Global::setLastSearch (this->useText);
          result = db.findBack (useLimit, useText, useRepeat);
+         break;
+
+      case GetBack:
+         result = db.getBack (useRepeat);
          break;
 
       case LowerCase:

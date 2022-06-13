@@ -2,7 +2,7 @@
  *
  * This file is part of the ACE command line editor.
  *
- * Copyright (C) 1980-2021  Andrew C. Starritt
+ * Copyright (C) 1980-2022  Andrew C. Starritt
  *
  * The ACE program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
@@ -32,6 +32,11 @@
 class DataBuffer
 {
 public:
+   enum Direction {
+      Forward,
+      Reverse       // Aka backwards
+   };
+
    explicit DataBuffer();
    ~DataBuffer();
 
@@ -133,6 +138,15 @@ private:
    bool locate     (const int searchLimit, const std::string text, const int skip);
    bool locateBack (const int searchLimit, const std::string text, const int skip);
 
+   // Combined functionality where forward and reverse are similar.
+   //
+   bool absorbeDirection (const Direction direction, const int number);
+   bool breakDirection   (const Direction direction, const int number);
+   bool getDirection     (const Direction direction, const int number);
+   bool insertDirection  (const Direction direction,
+                          const std::string text, const int number);
+   bool printDirection   (const Direction direction, const int number);
+   bool writeDirection   (const Direction direction, const int number);
 
 
    StringList data;

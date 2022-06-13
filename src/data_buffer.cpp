@@ -2,7 +2,7 @@
  *
  * This file is part of the ACE command line editor.
  *
- * Copyright (C) 1980-2021  Andrew C. Starritt
+ * Copyright (C) 1980-2022  Andrew C. Starritt
  *
  * The ACE program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
@@ -32,7 +32,7 @@
 
 #define MIN(a, b)          ((a) <= (b) ? (a) : (b))
 #define MAX(a, b)          ((a) >= (b) ? (a) : (b))
-#define LxIMIT(x,low,high)  (MAX(low, MIN(x, high)))
+#define LxIMIT(x,low,high) (MAX(low, MIN(x, high)))
 
 //------------------------------------------------------------------------------
 //
@@ -200,7 +200,7 @@ void DataBuffer::appendLine (const std::string line)
 //
 void DataBuffer::insertLine (const std::string line)
 {
-    this->data.insert (this->lineIter, line);
+   this->data.insert (this->lineIter, line);
 }
 
 //------------------------------------------------------------------------------
@@ -364,7 +364,7 @@ bool DataBuffer::locateBack (const int searchLimit, const std::string text,
 
 //------------------------------------------------------------------------------
 //
-bool DataBuffer::absorbe (const int number)
+bool DataBuffer::absorbeDirection (const Direction direction, const int number)
 {
    if (!this->inputStream.is_open()) return false;
 
@@ -374,6 +374,9 @@ bool DataBuffer::absorbe (const int number)
       std::getline (this->inputStream, line);
       if (this->inputStream.good()) {
          this->insertLine (line);
+         if (direction == Reverse) {
+            this->lineIter--;
+         }
          this->colNo = 0;
          this->setChanged ();
       } else {
@@ -390,25 +393,57 @@ bool DataBuffer::absorbe (const int number)
 
 //------------------------------------------------------------------------------
 //
+bool DataBuffer::absorbe (const int number)
+{
+   return this->absorbeDirection (Forward, number);
+}
+
+//------------------------------------------------------------------------------
+//
 bool DataBuffer::absorbeBack (const int number)
 {
-   if (!this->inputStream.is_open()) return false;
+   return this->absorbeDirection (Reverse, number);
+}
 
+//------------------------------------------------------------------------------
+//
+bool DataBuffer::breakDirection (const Direction direction, const int number)
+{
    bool result = true;
-   for (int j = 0; j < number; j++) {
-      std::string line;
-      std::getline (this->inputStream, line);
-      if (this->inputStream.good()) {
-         this->insertLine (line);
-         this->lineIter--;
-         this->colNo = 0;
+
+   if (this->lineIter != this->data.end ()) {
+      for (int j = 0; j < number; j++) {
+         const std::string line = this->currentLine ();
+         // Split current line into two parts.
+         const std::string part1 = line.substr (0, this->colNo);
+         const std::string part2 = line.substr (this->colNo);
+
+         this->replaceLine (part1);
+         this->lineIter++;
+         this->insertLine (part2);
+         if (direction == Forward) {
+            this->lineIter--;
+            this->colNo = 0;
+         } else {
+            this->lineIter--;
+            this->lineIter--;
+            const std::string line2 = this->currentLine ();
+            this->colNo = line2.length();
+         }
          this->setChanged ();
-      } else {
-         // end of file.
+      }
+   } else {
+      // We can break the notional **END** line.
+      //
+      for (int j = 0; j < number; j++) {
+         this->appendLine ("");
+         // append or inserting at end of buffer "stuffs" up lineIter, so reset.
          //
-         this->inputStream.close ();
-         result = false;
-         break;
+         this->lineIter = this->data.end ();
+         if (direction == Reverse) {
+            this->lineIter--;
+         }
+         this->colNo = 0;
       }
    }
 
@@ -419,38 +454,14 @@ bool DataBuffer::absorbeBack (const int number)
 //
 bool DataBuffer::breakLine (const int number)
 {
-   bool result = true;
-
-   if (this->lineIter != this->data.end ()) {
-      for (int j = 0; j < number; j++) {
-         const std::string line = this->currentLine ();
-         const std::string part1 = line.substr (0, this->colNo);
-         const std::string part2 = line.substr (this->colNo);
-
-         this->replaceLine (part1);
-         this->lineIter++;
-         this->insertLine (part2);
-         this->lineIter--;
-         this->colNo = 0;
-         this->setChanged ();
-      }
-   } else {
-      // We can break the notional **END** line.
-      for (int j = 0; j < number; j++) {
-         this->appendLine ("");
-         this->lineIter++;
-         this->colNo = 0;
-      }
-   }
-
-   return result;
+   return this->breakDirection (Forward, number);
 }
 
 //------------------------------------------------------------------------------
 //
 bool DataBuffer::breakLineBack (const int number)
 {
-   return false;
+   return this->breakDirection (Reverse, number);
 }
 
 //------------------------------------------------------------------------------
@@ -572,7 +583,7 @@ bool DataBuffer::eraseBack (const int number)
 
 //------------------------------------------------------------------------------
 //
-bool DataBuffer::get (const int number)
+bool DataBuffer::getDirection (const Direction direction, const int number)
 {
    const Global::GetLineFuncPtr getLine = Global::getGetLineFunc ();
    if (!getLine) {
@@ -589,6 +600,9 @@ bool DataBuffer::get (const int number)
       }
 
       this->insertLine (line);
+      if (direction == Reverse) {
+         this->lineIter--;
+      }
       this->colNo = 0;
       this->setChanged ();
    }
@@ -598,31 +612,17 @@ bool DataBuffer::get (const int number)
 
 //------------------------------------------------------------------------------
 //
-bool DataBuffer::getBack (const int number)
+bool DataBuffer::get (const int number)
 {
-   const Global::GetLineFuncPtr getLine = Global::getGetLineFunc ();
-   if (!getLine) {
-      std::cerr << "get_line function undefined" << std::endl;
-      return false;
-   }
-
-   bool result = true;
-   for (int j = 0; j < number; j++) {
-      std::string line = getLine (":");
-      if (line == ":") {
-         result = false;
-         break;
-      }
-
-      this->insertLine (line);
-      this->lineIter--;
-      this->colNo = 0;
-      this->setChanged ();
-   }
-
-   return result;
+   return this->getDirection (Forward, number);
 }
 
+//------------------------------------------------------------------------------
+//
+bool DataBuffer::getBack (const int number)
+{
+   return this->getDirection (Reverse, number);
+}
 
 //------------------------------------------------------------------------------
 //
@@ -674,14 +674,19 @@ bool DataBuffer::lowerCase (const int number)
 
 //------------------------------------------------------------------------------
 //
-bool DataBuffer::insert (const std::string text, const int number)
+bool DataBuffer::insertDirection  (const Direction direction,
+                                   const std::string text, const int number)
 {
    if (this->lineIter == this->data.end ()) return false;
+
+   if (text.length() == 0) return true;
 
    std::string line = this->currentLine();
    for (int j = 0; j < number; j++) {
       line.insert(this->colNo, text);
-      this->colNo += text.length();
+      if (direction == Forward) {
+         this->colNo += text.length();
+      }
    }
 
    this->replaceLine (line);
@@ -692,9 +697,16 @@ bool DataBuffer::insert (const std::string text, const int number)
 
 //------------------------------------------------------------------------------
 //
+bool DataBuffer::insert (const std::string text, const int number)
+{
+   return this->insertDirection (Forward, text, number);
+}
+
+//------------------------------------------------------------------------------
+//
 bool DataBuffer::insertBack (const std::string text, const int number)
 {
-   return false;
+   return this->insertDirection (Reverse, text, number);
 }
 
 //------------------------------------------------------------------------------
@@ -906,19 +918,46 @@ bool DataBuffer::now (const int number)
 
 //------------------------------------------------------------------------------
 //
-bool DataBuffer::print (const int number)
+bool DataBuffer::printDirection (const Direction direction, const int number)
 {
    bool result = true;
 
+   const int n = this->data.size();
+   char format [32];
+
+   if (Global::getShowLineNumbers()) {
+      int m;
+      if (n < 10) {
+         m = 1;
+      } else if (n < 100) {
+         m = 2;
+      } else if (n < 1000) {
+         m = 3;
+      } else if (n < 10000) {
+         m = 4;
+      } else if (n < 100000) {
+         m = 5;
+      } else {
+         m = 6;
+      }
+      snprintf (format, sizeof (format), "\033[33;1m%%%dd\033[00m ", m);
+   }
+
    for (int j = 0; j < number; j++) {
       if (j >= 1) {
-         result = this->move (1);
+         // We only move before the 2nd and subsequenct print.
+         //
+         if (direction == Forward) {
+            result = this->move (1);
+         } else {
+            result = this->moveBack (1);
+         }
          if (!result) break;
       }
 
       char lnb [32] = "";
       if (Global::getShowLineNumbers()) {
-         snprintf(lnb, sizeof (lnb), "\033[33;1m%4d\033[00m ", this->lineno());
+         snprintf (lnb, sizeof (lnb), format, this->lineno());
       }
 
       if (this->lineIter == this->data.end ()){
@@ -942,38 +981,16 @@ bool DataBuffer::print (const int number)
 
 //------------------------------------------------------------------------------
 //
+bool DataBuffer::print (const int number)
+{
+   return this->printDirection (Forward, number);
+}
+
+//------------------------------------------------------------------------------
+//
 bool DataBuffer::printBack (const int number)
 {
-   bool result = true;
-
-   for (int j = 0; j < number; j++) {
-      if (j >= 1) {
-         result = this->moveBack (1);
-         if (!result) break;
-      }
-
-      char lnb [32] = "";
-      if (Global::getShowLineNumbers()) {
-         snprintf(lnb, sizeof (lnb), "\033[33;1m%4d\033[00m ", this->lineno());
-      }
-
-      if (this->lineIter == this->data.end ()){
-         std::cerr << lnb << "**END**" << std::endl;
-
-      } else {
-         const std::string line = this->currentLine ();
-         if (number >= 2 || this->colNo == 0) {
-            std::cerr << lnb << line << std::endl;
-         } else {
-            const std::string part1 = line.substr (0, this->colNo);
-            const std::string part2 = line.substr (this->colNo);
-            std::cerr << lnb << part1 << '^' << part2 << std::endl;
-         }
-      }
-      this->clearChanged ();
-   }
-
-   return result;
+   return this->printDirection (Reverse, number);
 }
 
 //------------------------------------------------------------------------------
@@ -997,7 +1014,15 @@ bool DataBuffer::quary (const int number)
 //
 bool DataBuffer::quaryBack (const int number)
 {
-   return false;
+   if (this->lineIter == this->data.end ()) return false;
+
+   const std::string line = this->currentLine();
+   const bool result = this->colNo >= number;
+   const int size = MIN (number, this->colNo);
+
+   Global::setLastModify (line.substr (this->colNo - size, size));
+
+   return result;
 }
 
 //------------------------------------------------------------------------------
@@ -1247,22 +1272,23 @@ bool DataBuffer::verifyBack (const std::string text)
 
 //------------------------------------------------------------------------------
 //
-bool DataBuffer::write (const int number)
+bool DataBuffer::writeDirection (const Direction direction, const int number)
 {
    if (!this->outputStream.is_open()) return false;
 
    bool result = true;
    for (int j = 0; j < number; j++) {
       if (j >= 1) {
-         result = this->move (1);
+         if (direction == Forward) {
+            result = this->move (1);
+          } else {
+            result = this->moveBack (1);
+         }
          if (!result) break;
          this->setChanged ();
       }
 
-      if (this->lineIter == this->data.end ()) {
-         result = false;
-         break;
-      } else {
+      if (this->lineIter != this->data.end ()) {
          const std::string line = this->currentLine ();
          this->outputStream << line << std::endl;
       }
@@ -1273,28 +1299,16 @@ bool DataBuffer::write (const int number)
 
 //------------------------------------------------------------------------------
 //
+bool DataBuffer::write (const int number)
+{
+   return this->writeDirection (Forward, number);
+}
+
+//------------------------------------------------------------------------------
+//
 bool DataBuffer::writeBack (const int number)
 {
-   if (!this->outputStream.is_open()) return false;
-
-   bool result = true;
-   for (int j = 0; j < number; j++) {
-      if (j >= 1) {
-         result = this->moveBack (1);
-         if (!result) break;
-         this->setChanged ();
-      }
-
-      if (this->lineIter == this->data.end ()) {
-         result = false;
-         break;
-      } else {
-         const std::string line = this->currentLine ();
-         this->outputStream << line << std::endl;
-      }
-   }
-
-   return result;
+   return this->writeDirection (Reverse, number);
 }
 
 // end

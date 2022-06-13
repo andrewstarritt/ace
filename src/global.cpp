@@ -2,7 +2,7 @@
  *
  * This file is part of the ACE command line editor.
  *
- * Copyright (C) 1980-2021  Andrew C. Starritt
+ * Copyright (C) 1980-2022  Andrew C. Starritt
  *
  * The ACE program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the

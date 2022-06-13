@@ -2,7 +2,7 @@
  *
  * This file is part of the ACE command line editor.
  *
- * Copyright (C) 1980-2021  Andrew C. Starritt
+ * Copyright (C) 1980-2022  Andrew C. Starritt
  *
  * The ACE program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
@@ -30,7 +30,14 @@
 
 #define ARRAY_LENGTH(xx)    static_cast<int> (sizeof (xx) /sizeof (xx [0]))
 
-#define BC  BasicCommands
+enum CommandKind {
+   Forward = 0,
+   Backward,
+   Special,
+   NUMBER_OF_KINDS
+};
+
+typedef BasicCommands BC;   // alias for brevity
 
 // Maps command letter A for forms A, A- and %A to a basic command kind.
 //
@@ -65,10 +72,11 @@ static const BasicCommands::Kinds charLookup [26][3] = {
 
 enum AllowedArgs {
    None = 0x00,
-   Lim =  0x01,   // search limit or other number - optional
-   Txt =  0x02,   // search text - required
-   Rep =  0x04,   // repeat limit - optional
-   Mod =  0x08    // modified - optional
+   Code =  0x01,   // exit code or other number
+   Lim  =  0x02,   // search limit
+   Txt  =  0x04,   // search text - required
+   Rep  =  0x08,   // repeat limit - optional
+   Mod  =  0x10    // modified - optional
 };
 
 
@@ -89,7 +97,7 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
      "Absorbe a line from secondary input file.",
      "Secondary input file not opened or at end of input file." },
    { BC::BreakLine,       "BreakLine",       Rep | Mod,
-     "Break current line (insert \n) at cursor location.",
+     "Break current line (insert \\n) at cursor location.",
      "None." },
    { BC::Connect,         "Connect",         Txt | Mod,
      "Connect secondary input file specified by /text/.",
@@ -162,10 +170,10 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    // Reverse/backwards X- commands
    //
    { BC::AbsorbeBack,     "AbsorbeBack",     Rep | Mod,
-     "Absorbe a line from secondary input file and moveback 1 line",
+     "Absorbe a line from secondary input file and move back 1 line.",
      "Secondary input file not opened." },
    { BC::BreakLineBack,   "BreakLineBack",   Rep | Mod,
-     "Break current line (insert \n) at cursor location.",
+     "Break current line (insert \\n) at cursor location.",
      "None." },
    { BC::DeleteBack,      "DeleteBack",      Lim | Txt | Rep | Mod,
      "Delete previous occurance of specified /text/.",
@@ -177,7 +185,7 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
      "Find previous occurance of the specified /text/, cursor located to left of text.",
      "Specified text does not occur in file before current location." },
    { BC::GetBack,         "GetBack",         Rep | Mod,
-     "Get a line from command input stream.",
+     "Get a line from command input stream and move back 1 line.",
      "Line consists of a single ':'. Usefull for g*" },
    { BC::LowerCase,       "LowerCase",       Rep | Mod,
      "Convert character to the immediate right of cursor\n"
@@ -273,9 +281,6 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
      "None." }
 };
 
-#undef BC
-
-
 // Perfrom a commandLookup sanity check
 //
 static bool _check() {
@@ -301,9 +306,9 @@ static int indexOfLetter (const char letter)
 {
    int result;
 
-   if ((letter >= 'A') && (letter < 'Z')) {
+   if ((letter >= 'A') && (letter <= 'Z')) {
       result = int(letter) - int('A');
-   } else  if ((letter >= 'a') && (letter < 'z')) {
+   } else  if ((letter >= 'a') && (letter <= 'z')) {
       result = int(letter) - int('a');
    } else {
       result = -1;
@@ -380,10 +385,11 @@ void CommandParser::commandHelp (const BasicCommands::Kinds kind,
 
    const unsigned allowed = commandLookup[kind].allowed;
 
+   if (allowed & Code) syntax += " [Number]";
    if (allowed & Lim) syntax += " [Limit]";
    if (allowed & Txt) syntax += " {/text/,&}";
-   if (allowed & Txt) syntax += " [Repeat]";
-   if (allowed & Mod) syntax += " [{@,?,\\,~,}]";
+   if (allowed & Rep) syntax += " [Repeat]";
+   if (allowed & Mod) syntax += " [{@|?|\\|~}]";
 
    stream << "Syntax: " << syntax << std::endl;
    stream << "Failure condition: "
@@ -539,7 +545,7 @@ CompoundCommands* CommandParser::parse (const std::string commandLine)
                   // Forth time around the loop - we should have been
                   // all done by the end of the 3rd loop.
                   //
-                  std::cerr << "Too deep in macros - line ignored" << std::endl;
+                  std::cerr << "Recursive macro expansion - command line ignored" << std::endl;
                   return nullptr;
                }
 
@@ -686,13 +692,12 @@ CompoundCommands* CommandParser::parse (const std::string commandLine,
          // Allow commands are A, A- and %A.
 
          std::string name;
-         name.push_back (x);
-
-         int col = 0;    // default
+         CommandKind col = Forward;   // default
 
          if (x == '%') {
+            name.push_back (x);
             SKIP_SPACES();
-            col = 2;
+            col = Special;
             x = NEXT_CHAR();
             if (x != '\0') {
                // Is an actual char.
@@ -705,9 +710,9 @@ CompoundCommands* CommandParser::parse (const std::string commandLine,
          if (x >= 'A' && x <= 'Z') {
             name.push_back (x);
 
-            if ((col == 0) && (NEXT_CHAR() == '-')) {
+            if ((col == Forward) && (NEXT_CHAR() == '-')) {
                ptr++;
-               col = 1;
+               col = Backward;
                name.push_back('-');
             }
 
@@ -869,7 +874,7 @@ bool CommandParser::isQuote (const char x)
    return ((x == '"') || (x == '/') || (x == '\'') ||
            (x == '!') || (x == '.') || (x == '+') ||
            (x == '`') || (x == ':') || (x == '=') ||
-           (x == '|') );
+           (x == '|') || (x == '^') );
 }
 
 //------------------------------------------------------------------------------
