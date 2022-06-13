@@ -284,9 +284,12 @@ int main (int argc, char** argv)
 
    // Allow environment variable to override the default.
    //
-   std::string aq = getenv("ACE_QUIET");
-   if (aq == "1" || aq == "Y" || aq == "y") {
-      suppressCopyRight = true;
+   const char* rawaq = getenv ("ACE_QUIET");
+   if (rawaq) {
+      const std::string aq = rawaq;
+      if (aq == "1" || aq == "Y" || aq == "y") {
+         suppressCopyRight = true;
+      }
    }
 
    // Parse options/arguments.
