@@ -71,7 +71,7 @@ PUT_RESOURCE (warranty,       warranty_txt)
 //
 static void version (std::ostream& stream)
 {
-   stream << "Ace Linux Version 3.1.2  Build " << build_datetime() << std::endl;
+   stream << "Ace Linux Version 3.1.3  Build " << build_datetime() << std::endl;
 }
 
 //------------------------------------------------------------------------------

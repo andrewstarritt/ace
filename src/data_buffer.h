@@ -41,7 +41,7 @@ public:
    ~DataBuffer();
 
    // For load/save, a file name of "-" interpreted as stdin or stdout
-   // If filename is really "-", then user must use "./-" or similar trick
+   // If filename is really "-", then user must use "./-" or similar trick.
    //
    static std::string stdInOut ();
 
@@ -90,7 +90,7 @@ public:
    bool verify (const std::string text);
    bool write (const int number);
 
-   // -ve commands
+   // Reverse/backwards commands.
    //
    bool absorbeBack (const int number);
    bool breakLineBack (const int number);
@@ -129,16 +129,17 @@ private:
    //
    std::string currentLine() const;
 
-   // finds the current line number
+   // finds the current line number.
    //
-   int lineno() const;
+   int currentLineNo() const;
 
    // Basic search functions.
    //
    bool locate     (const int searchLimit, const std::string text, const int skip);
    bool locateBack (const int searchLimit, const std::string text, const int skip);
 
-   // Combined functionality where forward and reverse are similar.
+   // Combined functionality where forward and reverse version of the command
+   // are similar.
    //
    bool absorbeDirection    (const Direction direction, const int number);
    bool breakDirection      (const Direction direction, const int number);
@@ -148,7 +149,6 @@ private:
    bool printDirection      (const Direction direction, const int number);
    bool substituteDirection (const Direction direction, const std::string text);
    bool writeDirection      (const Direction direction, const int number);
-
 
    StringList data;
 

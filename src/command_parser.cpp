@@ -71,12 +71,13 @@ static const BasicCommands::Kinds charLookup [26][3] = {
 };
 
 enum AllowedArgs {
-   None = 0x00,
+   None =  0x00,
    Code =  0x01,   // exit code or other number
    Lim  =  0x02,   // search limit
    Txt  =  0x04,   // search text - required
-   Rep  =  0x08,   // repeat limit - optional
-   Mod  =  0x10    // modified - optional
+   Last =  0x08,   // last text (&) allowed - optional. On;y applicable when Txt defined.
+   Rep  =  0x10,   // repeat limit - optional
+   Mod  =  0x20    // modified - optional
 };
 
 
@@ -99,7 +100,7 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::BreakLine,       "BreakLine",       Rep | Mod,
      "Break current line (insert \\n) at cursor location.",
      "None." },
-   { BC::Connect,         "Connect",         Txt | Mod,
+   { BC::Connect,         "Connect",         Txt | Last | Mod,
      "Connect secondary input file specified by /text/.",
      "Specified file does not exist or not readable" },
    { BC::DeleteText,      "DeleteText",      Lim | Txt | Rep | Mod,
@@ -108,7 +109,7 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::Erase,           "Erase",           Rep | Mod,
      "Erase character to the immediate right of the cursor.",
      "Cursor is at end of line or at end of file." },
-   { BC::Find,            "Find",            Lim | Txt | Rep | Mod,
+   { BC::Find,            "Find",            Lim | Txt | Last | Rep | Mod,
      "Find next occurance of the specified /text/, cursor located to left of text.",
      "Specified text does not occur in rest of file." },
    { BC::Get,             "Get",             Rep | Mod,
@@ -118,7 +119,7 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
      "Convert character to the immediate right of cursor to upper case\n"
      "and move cursor right one character.",
      "Cursor is at end of line or at end of file." },
-   { BC::Insert,          "Insert",          Txt | Rep | Mod,
+   { BC::Insert,          "Insert",          Txt | Last | Rep | Mod,
      "Insert specified text to the left of the cursor.",
      "Cursor is at end of file." },
    { BC::Join,            "Join",            Rep | Mod,
@@ -136,7 +137,7 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::Now,             "Now",             Rep | Mod,
      "Insert current date-time to the left of the cursor.",
      "Cursor is at end of file." },
-   { BC::Output,          "Output",          Txt | Mod,
+   { BC::Output,          "Output",          Txt | Last | Mod,
      "Connect secondary output file specified by /text/.",
      "Invlaid pathname/cannot create file." },
    { BC::Print,           "Print",           Rep | Mod,
@@ -150,17 +151,17 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::Right,           "Right",           Rep | Mod,
      "Move cursor right one character.",
      "Cursor is at end of line or at end of file." },
-   { BC::Substitute,      "Substitute",      Txt | Mod,
+   { BC::Substitute,      "Substitute",      Txt | Last | Mod,
      "Replace just found text with specified text, cursor\n"
      "is placed to the left of the replacement text.",
      "Previous Find, Uncover, or Verify command failed." },
-   { BC::Traverse,        "Traverse",        Lim | Txt | Rep | Mod,
+   { BC::Traverse,        "Traverse",        Lim | Txt | Last | Rep | Mod,
      "Find after next occurance of specified /text/, cursor located to right of text.",
      "Specified text does not occur in rest of line." },
-   { BC::Uncover,         "Uncover",         Lim | Txt | Rep | Mod,
+   { BC::Uncover,         "Uncover",         Lim | Txt | Last | Rep | Mod,
      "Uncover (remove) characters upto but not including specified /text/.",
      "The text does not occur on the current line or at end of file." },
-   { BC::Verify,          "Verify",          Txt | Mod,
+   { BC::Verify,          "Verify",          Txt | Last | Mod,
      "Compares the text to immediate right of cursor with specified /text/.",
      "The text to the immediate right of cursor does not match specified text." },
    { BC::Write,           "Write",           Rep | Mod,
@@ -175,13 +176,13 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::BreakLineBack,   "BreakLineBack",   Rep | Mod,
      "Break current line (insert \\n) at cursor location.",
      "None." },
-   { BC::DeleteBack,      "DeleteBack",      Lim | Txt | Rep | Mod,
+   { BC::DeleteBack,      "DeleteBack",      Lim | Txt | Last | Rep | Mod,
      "Delete previous occurance of specified /text/.",
      "The text does not occur on the current line." },
    { BC::EraseBack,       "EraseBack",       Rep | Mod,
      "Erase character to the immediate left of the cursor.",
      "Cursor is at start of line or at end of file." },
-   { BC::FindBack,        "FindBack",        Lim | Txt | Rep | Mod,
+   { BC::FindBack,        "FindBack",        Lim | Txt | Last | Rep | Mod,
      "Find previous occurance of the specified /text/, cursor located to left of text.",
      "Specified text does not occur in file before current location." },
    { BC::GetBack,         "GetBack",         Rep | Mod,
@@ -216,13 +217,13 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
      "Replace just found text with specified text, cursor\n"
      "is placed to the right of the replacement text.",
      "Previous Find, Uncover, or Verify command failed." },
-   { BC::TraverseBack,    "TraverseBack",    Lim | Txt | Rep | Mod,
+   { BC::TraverseBack,    "TraverseBack",    Lim | Txt | Last | Rep | Mod,
      "Find after previous occurance of specified /text/, cursor located to right of text.",
      "Specified text does not occur in file before current location." },
-   { BC::UncoverBack,     "UncoverBack",     Lim | Txt | Rep | Mod,
+   { BC::UncoverBack,     "UncoverBack",     Lim | Txt | Last | Rep | Mod,
      "Uncover (remove) characters upto and including previous /text/.",
      "The text does not occur on the current line." },
-   { BC::VerifyBack,      "VerifyBack",      Txt | Mod,
+   { BC::VerifyBack,      "VerifyBack",      Txt | Last | Mod,
      "Verifiy that the text in the file to the immediate\n"
      "left of the cursor is the same as the specified text.",
      "The text does not match (check is case sensitive)." },
@@ -388,7 +389,13 @@ void CommandParser::commandHelp (const BasicCommands::Kinds kind,
 
    if (allowed & Code) syntax += " [Number]";
    if (allowed & Lim) syntax += " [Limit]";
-   if (allowed & Txt) syntax += " {/text/,&}";
+   if (allowed & Txt) {
+      if (allowed & Last) {
+         syntax += " {/text/,&}";
+      } else {
+         syntax += " /text/";
+      }
+   }
    if (allowed & Rep) syntax += " [Repeat]";
    if (allowed & Mod) syntax += " [{@|?|\\|~}]";
 
@@ -748,7 +755,9 @@ CompoundCommands* CommandParser::parse (const std::string commandLine,
 
                if (allowed & Txt) {
                   SKIP_SPACES();
-                  if (NEXT_CHAR() == '&') {
+                  // Check for last string allowed and present.
+                  //
+                  if ((allowed & Last) && (NEXT_CHAR() == '&')) {
                      ptr++;  // read the "&"
                      useLastText = true;
                   } else {

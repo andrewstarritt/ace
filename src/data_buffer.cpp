@@ -240,7 +240,7 @@ std::string DataBuffer::currentLine() const
 
 //------------------------------------------------------------------------------
 //
-int DataBuffer::lineno() const
+int DataBuffer::currentLineNo() const
 {
    int result = 1;
    Iterator t = this->lineIter;
@@ -920,6 +920,7 @@ bool DataBuffer::now (const int number)
 //
 bool DataBuffer::printDirection (const Direction direction, const int number)
 {
+   const int linenoIncDec = (direction == Forward) ? + 1 : -1;
    bool result = true;
 
    // Colourise the cursor.
@@ -946,14 +947,15 @@ bool DataBuffer::printDirection (const Direction direction, const int number)
          m = 6;
       }
 
-      // Colourise the line numbers - not so good on a white screen.
+      // Colourise the line numbers - yellow not so good on a white screen.
       //
       snprintf (format, sizeof (format), "\033[33;1m%%%dd\033[00m ", m);
    }
 
-   for (int j = 0; j < number; j++) {
+   int lineNo = this->currentLineNo();
+   for (int j = 0; j < number; j++, lineNo += linenoIncDec) {
       if (j >= 1) {
-         // We only move before the 2nd and subsequenct print.
+         // We only move before the 2nd and subsequent print.
          //
          if (direction == Forward) {
             result = this->move (1);
@@ -964,8 +966,10 @@ bool DataBuffer::printDirection (const Direction direction, const int number)
       }
 
       char lnb [32] = "";
+      int lnbLength = 0;
       if (Global::getShowLineNumbers()) {
-         snprintf (lnb, sizeof (lnb), format, this->lineno());
+         snprintf (lnb, sizeof (lnb), format, lineNo);
+         lnbLength = strlen(lnb) - 12;  // -12 for the colour codes
       }
 
       if (this->lineIter == this->data.end ()){
@@ -975,14 +979,49 @@ bool DataBuffer::printDirection (const Direction direction, const int number)
 
       } else {
          const std::string line = this->currentLine ();
-         if (number >= 2 || this->colNo == 0) {
-            std::cerr << lnb << line << std::endl;
-         } else {
-            const std::string part1 = line.substr (0, this->colNo);
-            const std::string part2 = line.substr (this->colNo);
-            std::cerr << lnb << part1 << cm << part2 << std::endl;
+         const int lineLen = line.length();
+
+         // Characters per line: subtract the line number length and
+         // another 1 for the cursor.
+         //
+         int cpl = Global::getTerminalMax() - lnbLength - 1;
+
+         int numSubLines = (lineLen + cpl - 1) / cpl;   // round up
+         if (numSubLines == 0) {
+            // must have at least one line, even if it is blank.
+            //
+            numSubLines = 1;
+         }
+
+         for (int s = 0; s < numSubLines; s++) {
+            const int first = cpl*s;
+            const int last = MIN (cpl*(s+1), lineLen);
+
+            // Display the cursore?
+            //
+            if ((number == 1) && (first < this->colNo) && (this->colNo <= last)) {
+               // Yes: need the cursor. Cursor shown and end of sub-line rather
+               // than at the start of the next sub-line.
+               //
+               const std::string part1 = line.substr (first, this->colNo - first);
+               const std::string part2 = line.substr (this->colNo, last - this->colNo);
+               std::cerr << lnb << part1 << cm << part2 << std::endl;
+            } else {
+               // No need for the cursor.
+               //
+               const std::string part = line.substr (first, cpl);
+               std::cerr << lnb << part << std::endl;
+            }
+
+            // Clear the line number text.
+            //
+            if (s == 0) {
+               strncpy (lnb, "            ", sizeof (lnb));
+               lnb[lnbLength] = '\0';
+            }
          }
       }
+
       this->clearChanged ();
    }
 

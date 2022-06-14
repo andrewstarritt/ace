@@ -360,7 +360,7 @@ Failure condition: None.
 %S<br>
 SetMark: Set the cursor indication character to first character of the specified
 string.<br>
-Syntax: %S {/text/,&}<br>
+Syntax: %S /text/<br>
 Failure condition: None.
 
 %T<br>
@@ -375,17 +375,17 @@ Failure condition: None.
 
 %X<br>
 DefineX: Define the X macro - if /text/ is empty, the user is prompted.<br>
-Syntax: %X {/text/,&}<br>
+Syntax: %X /text/<br>
 Failure condition: None.
 
 %Y<br>
 DefineY: Define the Y macro - if /text/ is empty, the user is prompted.<br>
-Syntax: %Y {/text/,&}<br>
+Syntax: %Y /text/<br>
 Failure condition: None.
 
 %Z<br>
 DefineZ: Define the Z macro - if /text/ is empty, the user is prompted.<br>
-Syntax: %Z {/text/,&}<br>
+Syntax: %Z /text/<br>
 Failure condition: None.
 
 ## Macros
@@ -535,5 +535,6 @@ Note:
 ECCE - Edinburgh Compatible Context Editor
 ACE  - ACE Context Editor
 
-<font size="-1">Last updated: Mon Jun 13 17:17:04 AEST 2022</font>
+<font size="-1">Last updated: Tue Jun 14 14:45:29 AEST 2022</font>
 <br>
+

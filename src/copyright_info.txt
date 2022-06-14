@@ -2,4 +2,4 @@
 The [32;1mace[00m program comes with ABSOLUTELY NO WARRANTY, for details run 'ace --warranty'.
 This is free software, and you are welcome to redistribute it under the conditions 
 specified in the GNU GENERAL PUBLIC LICENSE, Version 3.
-Use option -q or the ACE_QUIET environment varaiable to suppress this message.
+Use option -q or set the ACE_QUIET environment varaiable to suppress this message.
