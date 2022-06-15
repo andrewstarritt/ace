@@ -84,7 +84,7 @@ public:
    bool print (const int number);
    bool quary (const int number);
    bool right (const int number);
-   bool substitute (const std::string text);
+   bool substitute (const std::string text, const int number);
    bool traverse (const int limit, const std::string text, const int number);
    bool uncover (const int limit, const std::string text, const int number);
    bool verify (const std::string text);
@@ -103,9 +103,10 @@ public:
    bool joinBack (const int number);
    bool killBack (const int number);
    bool moveBack (const int number);
+   bool nowBack (const int number);
    bool printBack (const int number);
    bool quaryBack (const int number);
-   bool substituteBack (const std::string text);
+   bool substituteBack (const std::string text, const int number);
    bool traverseBack (const int limit, const std::string text, const int number);
    bool uncoverBack (const int limit, const std::string text, const int number);
    bool verifyBack (const std::string text);
@@ -146,8 +147,10 @@ private:
    bool getDirection        (const Direction direction, const int number);
    bool insertDirection     (const Direction direction,
                              const std::string text, const int number);
+   bool nowDirection        (const Direction direction, const int number);
    bool printDirection      (const Direction direction, const int number);
-   bool substituteDirection (const Direction direction, const std::string text);
+   bool substituteDirection (const Direction direction,
+                             const std::string text, const int number);
    bool writeDirection      (const Direction direction, const int number);
 
    StringList data;

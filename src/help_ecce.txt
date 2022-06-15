@@ -46,6 +46,7 @@ B- : BreakLineBack
 G- : GetBack
 I- : InsertBack
 J- : JoinBack
+N- : NowBack
 P- : PrintBack
 Q- : QuaryBack
 S- : SubstituteBack
@@ -111,7 +112,7 @@ and command editing à la bash.
 
 Size/Implementation
 ECCE is 1863 lines,  885 statements, of C code, while 
-ACE  is 4344 lines, 1435 statements, of C++ code.
+ACE  is 4512 lines, 1486 statements, of C++ code.
 
 Note:
 ECCE - Edinburgh Compatible Context Editor

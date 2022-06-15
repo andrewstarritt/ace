@@ -235,7 +235,7 @@ bool BasicCommands::execute (DataBuffer& db)
       case Substitute:
          this->useText = this->useLastText ? Global::getLastModify() : this->text;
          Global::setLastModify (this->useText);
-         result = db.substitute (useText);
+         result = db.substitute (useText, useRepeat);
          break;
 
       case Traverse:
@@ -313,6 +313,10 @@ bool BasicCommands::execute (DataBuffer& db)
          result = db.moveBack (useRepeat);
          break;
 
+      case NowBack:
+         result = db.nowBack (useRepeat);
+         break;
+
       case PrintBack:
          result = db.printBack (useRepeat);
          break;
@@ -324,7 +328,7 @@ bool BasicCommands::execute (DataBuffer& db)
       case SubstituteBack:
          this->useText = this->useLastText ? Global::getLastModify() : this->text;
          Global::setLastModify (this->useText);
-         result = db.substituteBack (useText);
+         result = db.substituteBack (useText, useRepeat);
          break;
 
       case TraverseBack:
@@ -456,7 +460,7 @@ bool BasicCommands::execute (DataBuffer& db)
 
       default:
          std::cout << " *** " <<  CommandParser::name (this->kind)
-                   << " not implemented yet\n";
+                   << " not implemented yet.\n";
          result = false;
    }
 

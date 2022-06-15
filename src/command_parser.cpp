@@ -55,7 +55,7 @@ static const BasicCommands::Kinds charLookup [26][3] = {
    { BC::Kill,        BC::KillBack,       BC::Void           },
    { BC::Left,        BC::Void,           BC::LimitSet       },
    { BC::Move,        BC::MoveBack,       BC::Monitor        },
-   { BC::Now,         BC::Void,           BC::Numbers        },
+   { BC::Now,         BC::NowBack,        BC::Numbers        },
    { BC::Output,      BC::Void,           BC::Void           },
    { BC::Print,       BC::PrintBack,      BC::Prompt         },
    { BC::Quary,       BC::QuaryBack,      BC::Quiet          },
@@ -151,9 +151,9 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::Right,           "Right",           Rep | Mod,
      "Move cursor right one character.",
      "Cursor is at end of line or at end of file." },
-   { BC::Substitute,      "Substitute",      Txt | Last | Mod,
+   { BC::Substitute,      "Substitute",      Txt | Last | Rep | Mod,
      "Replace just found text with specified text, cursor\n"
-     "is placed to the left of the replacement text.",
+     "is placed to the right of the replacement text.",
      "Previous Find, Uncover, or Verify command failed." },
    { BC::Traverse,        "Traverse",        Lim | Txt | Last | Rep | Mod,
      "Find after next occurance of specified /text/, cursor located to right of text.",
@@ -205,6 +205,9 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::MoveBack,        "MoveBack",        Rep | Mod,
      "Move cursor to the start of the previous line.",
      "Cursor is at start of file." },
+   { BC::NowBack,         "NowBack",         Rep | Mod,
+     "Insert current date-time to the right of the cursor.",
+     "Cursor is at end of file." },
    { BC::PrintBack,       "PrintBack",       Rep | Mod,
      "Print current line to terminal.",
      "Cursor is at end of file." },
@@ -213,9 +216,9 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
      "The cursor is not moved. Note (Q)5 is not the same as Q5.",
      "Less than <repeat> characters to the end of the line or\n"
      "cursor is at end of line or at end of file."},
-   { BC::SubstituteBack,  "SubstituteBack",  Txt | Mod,
+   { BC::SubstituteBack,  "SubstituteBack",  Txt | Rep | Mod,
      "Replace just found text with specified text, cursor\n"
-     "is placed to the right of the replacement text.",
+     "is placed to the left of the replacement text.",
      "Previous Find, Uncover, or Verify command failed." },
    { BC::TraverseBack,    "TraverseBack",    Lim | Txt | Last | Rep | Mod,
      "Find after previous occurance of specified /text/, cursor located to right of text.",
@@ -233,10 +236,10 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
 
    // Special %X commands
    //
-   { BC::Abandon,         "Abandon",         Lim,
+   { BC::Abandon,         "Abandon",         Code,
      "Abandon edit session (exit code 1).",
      "None." },
-   { BC::Close,           "Close",           Lim,
+   { BC::Close,           "Close",           Code,
      "Close edit session (exit code 0).",
      "None." },
    { BC::Exchange,        "Exchange",        None,
@@ -245,7 +248,7 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::Full,            "Full",            None,
      "Full monitoring mode - current line printed after every command line.",
      "None." },
-   { BC::LimitSet,        "LimitSet",        Lim,
+   { BC::LimitSet,        "LimitSet",        Code,
      "Set interpretation of * for search limit - default is 100000.",
      "" },
    { BC::Monitor,         "Monitor",         None,
@@ -260,16 +263,16 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::Quiet,           "Quiet",           None,
      "Quiet monitoring mode - current line never printed after command line.",
      "None." },
-   { BC::RepeatSet,       "RepeatSet",       Lim,
+   { BC::RepeatSet,       "RepeatSet",       Code,
      "Set the repitition limit used for '*' and '0' - default is 50000.",
      "None." },
    { BC::SetMark,         "SetMark",         Txt,
      "Set the cursor indication character to first character of the specified string",
      "None." },
-   { BC::TerminalMaxSet,  "TerminalMaxSet",  Lim,
+   { BC::TerminalMaxSet,  "TerminalMaxSet",  Code,
      "Set the command line terminal width (min is 32) - default is 160.",
      "None." },
-   { BC::View,            "View",            Lim,
+   { BC::View,            "View",            Code,
      "View current settings - increase value for more detail.",
      "None." },
    { BC::DefineX,         "DefineX",         Txt,
@@ -283,13 +286,13 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
      "None." }
 };
 
-// Perfrom a commandLookup sanity check
+// Perfrom a commandLookup sanity check.
 //
 static bool _check() {
 
    for (int j = 0; j < ARRAY_LENGTH (commandLookup); j++) {
       if (j != commandLookup[j].kind) {
-         std::cout << "*** commandLookup[" << j << "].kind miss match: "
+         std::cerr << "*** commandLookup[" << j << "].kind miss-match: "
                    << commandLookup[j].kind << std::endl;
       }
    }
@@ -299,8 +302,11 @@ static bool _check() {
 
 static bool _checked = _check ();
 
-static const int magicNoInt = -1;
-static const int magicAMTAP = 0;    // As many times as possible.
+// Magic integer values.
+//
+static const int magicOverflow = -2;  // Given integer > 2147483647
+static const int magicNoInt = -1;     // Okay when optional
+static const int magicAMTAP = 0;      // As many times as possible.
 
 //------------------------------------------------------------------------------
 //
@@ -675,8 +681,14 @@ CompoundCommands* CommandParser::parse (const std::string commandLine,
          //
          const int temp = GET_INT();  // only none -ve numbers are read.
 
+         if (temp == magicOverflow) {
+            std::cerr << "Repeat overflow (...)" << std::endl;
+            clearSequence (seq);
+            return nullptr;
+         }
+
          if (temp != magicNoInt) {
-            // we read an integer (includs the * number)
+            // we read an integer (includes the * number)
             //
             if (temp == magicAMTAP) {
                modifier = AbstractCommands::AMTAP;
@@ -746,8 +758,17 @@ CompoundCommands* CommandParser::parse (const std::string commandLine,
 
                const unsigned int allowed =  commandLookup [kind].allowed;
 
-               if (allowed & Lim) {
+               if ((allowed & Lim) || (allowed & Code)) {
+                  // Limit and code number treated the same (at least for now).
+                  //
                   const int temp = GET_INT ();
+
+                  if (temp == magicOverflow) {
+                     std::cerr << "Search limit integer overflow " << name << std::endl;
+                     clearSequence (seq);
+                     return nullptr;
+                  }
+
                   if (temp != magicNoInt) {
                      limit = temp;
                   }
@@ -779,6 +800,11 @@ CompoundCommands* CommandParser::parse (const std::string commandLine,
                //
                if (allowed & Rep) {
                    temp = GET_INT ();  // only non -ve numbers are read.
+                   if (temp == magicOverflow) {
+                      std::cerr << "Repeat integer overflow " << name << std::endl;
+                      clearSequence (seq);
+                      return nullptr;
+                   }
                }
 
                if (temp != magicNoInt) {
@@ -859,13 +885,14 @@ int CommandParser::getInt (const std::string commandLine, int& ptr)
 
    x = CommandParser::nextChar (commandLine, ptr);
    if ('0' <= x && x <= '9') {
-      // Some short of number has been specified.
+      // Some sort of number has been specified.
       //
       result = 0;
       do {
          ptr++;  // "read" the next char
          int d = x - '0';
-         result = 10* result + d;
+         if (result > ((0x7FFFFFFF - d) / 10)) return magicOverflow;
+         result = 10*result + d;
          x = CommandParser::nextChar (commandLine, ptr);
       } while ('0' <= x && x <= '9');
    }
@@ -882,10 +909,10 @@ int CommandParser::getInt (const std::string commandLine, int& ptr)
 // static
 bool CommandParser::isQuote (const char x)
 {
-   return ((x == '"') || (x == '/') || (x == '\'') ||
-           (x == '!') || (x == '.') || (x == '+') ||
-           (x == '`') || (x == ':') || (x == '=') ||
-           (x == '|') || (x == '^') );
+   return ((x == '/') || (x == '"') || (x == '\'')|| (x == '!') ||
+           (x == '.') || (x == '+') || (x == '`') || (x == ':') ||
+           (x == '=') || (x == '|') || (x == '^') || (x == '$') ||
+           (x == '_'));
 }
 
 //------------------------------------------------------------------------------

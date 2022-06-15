@@ -45,6 +45,9 @@ public:
 
    static void show (const int detail, std::ostream& stream);
 
+   static void setExecutionInProgress();
+   static void clearExecutionInProgress();
+
    static void setInterruptRequest ();
    static void clearInterruptRequest ();
    static bool getInterruptRequest ();
@@ -104,6 +107,7 @@ private:
    static GetLineFuncPtr getLineFunc;
 
    static bool interruptRequest;
+   static bool executeInProgress;
    static bool closeRequest;
    static bool abandonRequest;
    static int exitCode;

@@ -58,11 +58,11 @@ The text argument only applies to string related commands such as F
 String arguments must be quoted.
 Any of the following characters may be used as a quote character for a
 string argument:<br>
-/ &nbsp; "  &nbsp; '  &nbsp; !  &nbsp; .  &nbsp;
-\+  &nbsp; ` &nbsp; : &nbsp; = &nbsp; |
+/ &nbsp; "  &nbsp; '  &nbsp; !  &nbsp; .  &nbsp; +  &nbsp; \`
+&nbsp; : &nbsp; = &nbsp; | &nbsp; ^  &nbsp; $  &nbsp; _
 
-_Note:_ The quote character _cannot_ be escaped to allow it to be included
-in the text.
+_Note:_ The quote character itself _cannot_ be escaped to allow it to
+be included in the text - plenty of quotes to choose from.
 
 The search limit is an optional integer extending or restricting the default
 number of lines that are searched for the specified text.
@@ -79,11 +79,11 @@ equivilent to 50000@, i.e. essentially do many times as possible, but
 do not fail.
 
 Special commands are preceeded by a %, and in general do not affect the
-the contents of the file, however modify the hehaviour of ace.
+the contents of the file, however do modify the hehaviour of ace.
 %C Closes the edit session.
 
 Compound commands may be formed by grouping other commands  in parentheses
-Eg: (mk)* --  this removes every other line from the file (upto line 100000)
+Eg: (mk)*  --  this removes every other line from the file (upto line 100000)
 
 Compound commands may be nested.
 
@@ -217,6 +217,11 @@ Now: Insert current date-time to the left of the cursor.<br>
 Syntax: N [Repeat] [{@|?|\\|~}]<br>
 Failure condition: Cursor is at end of file.
 
+N-<br>
+NowBack: Insert current date-time to the right of the cursor.<br>
+Syntax: N [Repeat] [{@|?|\\|~}]<br>
+Failure condition: Cursor is at end of file.
+
 O<br>
 Output: Connect secondary output file specified by /text/.<br>
 Syntax: O {/text/,&} [{@|?|\\|~}]<br>
@@ -253,14 +258,14 @@ Failure condition: Cursor is at end of line or at end of file.
 
 S<br>
 Substitute: Replace just found text with specified text, cursor
-is placed to the left of the replacement text.<br>
-Syntax: S {/text/,&} [{@|?|\\|~}]<br>
+is placed to the right of the replacement text.<br>
+Syntax: S [Repeat] {/text/,&} [{@|?|\\|~}]<br>
 Failure condition: Previous Find, Uncover, or Verify command failed.
 
 S-<br>
 Substitute: Replace just found text with specified text, cursor
-is placed to the right of the replacement text.<br>
-Syntax: S {/text/,&} [{@|?|\\|~}]<br>
+is placed to the left of the replacement text.<br>
+Syntax: S [Repeat] {/text/,&} [{@|?|\\|~}]<br>
 Failure condition: Previous Find, Uncover, or Verify command failed.
 
 T<br>
@@ -535,6 +540,5 @@ Note:
 ECCE - Edinburgh Compatible Context Editor
 ACE  - ACE Context Editor
 
-<font size="-1">Last updated: Tue Jun 14 14:45:29 AEST 2022</font>
+<font size="-1">Last updated: Wed Jun 15 15:12:39 AEST 2022</font>
 <br>
-

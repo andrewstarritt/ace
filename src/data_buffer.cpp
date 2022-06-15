@@ -898,7 +898,7 @@ bool DataBuffer::moveBack (const int number)
 
 //------------------------------------------------------------------------------
 //
-bool DataBuffer::now (const int number)
+bool DataBuffer::nowDirection (const Direction direction, const int number)
 {
    time_t now;
    char buffer [32];
@@ -913,7 +913,21 @@ bool DataBuffer::now (const int number)
    buffer [n] = '\0';
 
    const std::string dateTime = buffer;
-   return this->insert (dateTime, number);
+   return this->insertDirection (direction, dateTime, number);
+}
+
+//------------------------------------------------------------------------------
+//
+bool DataBuffer::now (const int number)
+{
+   return this->nowDirection (Forward, number);
+}
+
+//------------------------------------------------------------------------------
+//
+bool DataBuffer::nowBack (const int number)
+{
+   return this->nowDirection (Reverse, number);
 }
 
 //------------------------------------------------------------------------------
@@ -1077,7 +1091,8 @@ bool DataBuffer::quaryBack (const int number)
 //------------------------------------------------------------------------------
 //
 bool DataBuffer::substituteDirection (const Direction direction,
-                                      const std::string text)
+                                      const std::string text,
+                                      const int number)
 {
    if (this->lineIter == this->data.end ()) return false;
 
@@ -1093,10 +1108,17 @@ bool DataBuffer::substituteDirection (const Direction direction,
    const std::string part1 = line.substr (0, this->colNo);
    const std::string part2 = line.substr (from);  // to end of the line
 
-   this->replaceLine (part1 + text + part2);
-   if (direction == Forward) {
-      this->colNo += text.length();
+   // Replicated substituted text.
+   std::string stext = "";
+   for (int j = 0; j < number; j++) {
+      stext.append (text);
    }
+
+   this->replaceLine (part1 + stext + part2);
+   if (direction == Forward) {
+      this->colNo += stext.length();
+   }
+
    this->setChanged ();
 
    return true;
@@ -1104,16 +1126,16 @@ bool DataBuffer::substituteDirection (const Direction direction,
 
 //------------------------------------------------------------------------------
 //
-bool DataBuffer::substitute (const std::string text)
+bool DataBuffer::substitute (const std::string text, const int number)
 {
-   return this->substituteDirection (Forward, text);
+   return this->substituteDirection (Forward, text, number);
 }
 
 //------------------------------------------------------------------------------
 //
-bool DataBuffer::substituteBack (const std::string text)
+bool DataBuffer::substituteBack (const std::string text, const int number)
 {
-   return this->substituteDirection (Reverse, text);
+   return this->substituteDirection (Reverse, text, number);
 }
 
 //------------------------------------------------------------------------------

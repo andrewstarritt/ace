@@ -10,7 +10,7 @@ to take advantage of the unbounded strings and child packages.
 
 A graphical based version witten using Borland Delphi is available for Windows.
 
-Due to the removal of Gnat Ada suit in CentOS 8, ACE was transcoded to C++ in 2020.
+Due to the removal of Gnat Ada suit from CentOS 8, ACE was transcoded to C++ in 2020.
 This version is definitly Linux specific in places.
 
 A version of ECCE may be found at http://ecce.sourceforge.net/ together with other
@@ -24,13 +24,18 @@ Release 3 Realese Notes
 
 Transcoded to C++.
 
-Added some new backward/reverse commands (somewhat inspired by ECCE cited above): 
+Added some new backward/reverse commands (inspired by ECCE cited above): 
 
-A-, B-, G-, I-, Q-, P-, S-, W-.
+A-, B-, G-, I-, N-, P-, Q-, S-, W-.
 
-The Now (N) command. The date time format of the inserted text has changed
+The substitute (S/S-) commands now allowed a repation number.
+
+The Now (N/N-) commands. The date time format of the inserted text has changed
 from the in-your-face "SUN 12 JUN 2022 16:04:22" to "Sun Jun 12 16:04:29 2022"
 
 A new special command (%N) toggles on/off line numbering by the print (P/P-) 
 commands.
 
+Colourised **END**, ^ (cursor) and (new) line numbers.
+
+Some options can now be defined as environment varaiables.

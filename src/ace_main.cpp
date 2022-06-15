@@ -88,8 +88,8 @@ static void help (int argc, char** argv)
 
    if ((option == "none") || (option == "")) {
       version (std::cout);
-      std::cout << "ace is a command line editor, based on the Edinburgh Compatible" << std::endl;
-      std::cout << "Context Editor (ECCE) written by Hamish Dewar." << std::endl;
+      std::cout << "ace is a command line editor, based on the Edinburgh Compatible Context" << std::endl;
+      std::cout << "Editor (ECCE) written by Hamish Dewar." << std::endl;
       std::cout << std::endl;
       std::cout << "Copyright (C) 1980-2022  Andrew C. Starritt" << std::endl;
       std::cout << std::endl;
@@ -127,12 +127,11 @@ static void signalCatcher (int sig)
    switch (sig) {
 
       case SIGINT:
-         std::cout << "\nSIGINT received - quiting current command sequence.\n";
          Global::setInterruptRequest();
          break;
 
       case SIGTERM:
-         std::cout << "\nSIGTERM received - initiating orderly shutdown.\n";
+         std::cerr << "\nSIGTERM received - initiating orderly shutdown.\n";
          Global::requestClose(128 + sig);
          break;
 
@@ -248,7 +247,7 @@ int main (int argc, char** argv)
    // Certain groups of options are mutually exclusive.
    //
    const unsigned meg1 = ofShell;
-   const unsigned meg2 = ofTheLot ^ ofShell;
+   const unsigned meg2 = ofCommand | ofReport | ofBackup;
 
    unsigned optionFlags = ofNone;
    bool shellInterpretor = false;
@@ -260,8 +259,24 @@ int main (int argc, char** argv)
    std::string source;
    std::string target;
 
+// Macro to parse flag options.
+//
+#define PARSE_FLAG_OPTION(name, flag, ofFlag) {                          \
+   if ((optionFlags & ofFlag) != 0) {                                    \
+      std::cerr << "duplicate " #name " option: " << p1 << std::endl;    \
+      help_usage (std::cerr);                                            \
+      return 1;                                                          \
+   }                                                                     \
+   /*  */                                                                \
+   flag = true;                                                          \
+   optionFlags |= ofFlag;                                                \
+   argc--;                                                               \
+   argv++;                                                               \
+}
 
-// Macro to parse value options
+
+// Macro to parse value options.
+// variable name and string name are the same.
 //
 #define PARSE_VALUE_OPTION(name, ofFlag) {                               \
    if ((optionFlags & ofFlag) != 0) {                                    \
@@ -282,15 +297,6 @@ int main (int argc, char** argv)
    argv += 2;                                                            \
 }
 
-   // Allow environment variable to override the default.
-   //
-   const char* rawaq = getenv ("ACE_QUIET");
-   if (rawaq) {
-      const std::string aq = rawaq;
-      if (aq == "1" || aq == "Y" || aq == "y") {
-         suppressCopyRight = true;
-      }
-   }
 
    // Parse options/arguments.
    //
@@ -326,29 +332,11 @@ int main (int argc, char** argv)
       }
 
       else if ((p1 == "-s") || (p1 == "--shell")) {
-         if ((optionFlags & ofShell) != 0) {
-            std::cerr << "duplicate shell option: " << p1 << std::endl;
-            help_usage (std::cerr);
-            return 1;
-         }
-
-         shellInterpretor = true;
-         optionFlags |= ofShell;
-         argc--;
-         argv++;
+         PARSE_FLAG_OPTION(shell, shellInterpretor, ofShell);
       }
 
       else if ((p1 == "-q") || (p1 == "--quiet")) {
-         if ((optionFlags & ofQuiet) != 0) {
-            std::cerr << "duplicate shell option: " << p1 << std::endl;
-            help_usage (std::cerr);
-            return 1;
-         }
-
-         suppressCopyRight = true;
-         optionFlags |= ofQuiet;
-         argc--;
-         argv++;
+         PARSE_FLAG_OPTION(quiet, suppressCopyRight, ofQuiet);
       }
 
       else {
@@ -360,11 +348,38 @@ int main (int argc, char** argv)
 
 #undef PARSE_VALUE_OPTION
 
-   // Validate option combinations.
+   // Allow environment variables to provide values if not explicitly
+   // specified as command line options above.
+   //
+   if ((optionFlags & ofQuiet) == 0) {
+      // -q, --quiet not specified.
+      //
+      const char* rawaq = getenv ("ACE_QUIET");
+      if (rawaq) {
+         const std::string aq = rawaq;
+         if (aq == "1" || aq == "Y" || aq == "y") {
+            suppressCopyRight = true;
+            optionFlags |= ofQuiet;
+         }
+      }
+   }
+
+   if ((optionFlags & ofOption) == 0) {
+      // -o, --option not specified.
+      //
+      const char* rawopt = getenv ("ACE_OPTION");
+      if (rawopt) {
+         option = rawopt;
+         optionFlags |= ofOption;
+      }
+   }
+
+   // Validate option combinations - check the mutual exclusive groups.
    //
    if ( ((optionFlags & meg1) != ofNone) &&
         ((optionFlags & meg2) != ofNone) ) {
-      std::cerr << "shell option must be used on own" << std::endl;
+      std::cerr << "The command, report and/or backup option(s) are not "
+                   "allowed with the shell option." << std::endl;
       help_usage (std::cerr);
       return 1;
    }
@@ -409,14 +424,25 @@ int main (int argc, char** argv)
          target = argv [1];
       }
 
-      // TODO: check if source is a directory. ifstream is not so smart here.
-
       if ((source == target) && (source != DataBuffer::stdInOut())) {
          // Backup source file.
          //
          std::ifstream  src (source,       std::ios::binary);
          std::ofstream  bup (source + "~", std::ios::binary);
          bup << src.rdbuf();
+      }
+   }
+
+   // Command stream processing.
+   //
+   if (optionFlags & ofCommand) {
+      Global::setGetLineFunction (&getFromCommandStream);
+      commandStream.open (command);
+      bool result = commandStream.is_open ();
+      if (!result) {
+         std::cerr << "connot open command file: " << command << std::endl;
+         perror ("");
+         return 4;
       }
    }
 
@@ -429,6 +455,7 @@ int main (int argc, char** argv)
       } else {
          std::cerr << "Cannot open report stream " << report << " : ";
          perror ("");
+         return 4;
       }
    }
 
@@ -500,7 +527,9 @@ int main (int argc, char** argv)
       if (doThis) {
          db.clearChanged ();   // clear the "dirty" flag.
          Global::clearInterruptRequest();
+         Global::setExecutionInProgress();
          bool status = doThis->execute (db);
+         Global::clearExecutionInProgress();
          AbstractCommands* lastCommand = doThis->getLastCommand();
          BasicCommands* blc = dynamic_cast <BasicCommands*> (lastCommand);
          if (!status) {
@@ -510,7 +539,7 @@ int main (int argc, char** argv)
 
          switch (Global::getMode()) {
             case Global::Full:
-               // Alays print line (unless last command was a print).
+               // Always print line (unless last command was a print).
                //
                if (!blc || ((blc->getKind() != BasicCommands::Print) &&
                             (blc->getKind() != BasicCommands::PrintBack))) {

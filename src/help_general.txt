@@ -4,7 +4,7 @@ FROM    source file to be edited. If FROM is specified as '-', the input is
         it should be refered to by its absolute path name or by './-'.
 
 TO      target file of the edited output. The TO parameter defaults to FROM.
-        If is TO is the same as FROM then a back of FROM is created call FROM~ 
+        If is TO is the same as FROM then a back of FROM is created named FROM~ 
         If TO is specified as '-', the output is sent to standard output.
 
 Options:
@@ -13,6 +13,7 @@ Options:
 -r, --report     defines report output file, default is standard out.
 
 -o, --option     initial command string, e.g. %Q.
+                 See enviromment variables section below.
 
 -b, --backup     defines command backup file. No default, there is no
                  command backup if not specified.
@@ -42,6 +43,9 @@ Options:
 
 
 Enviromment Variables:
+ACE_OPTION       If defined, this is used when the option option [38;1mis not[00m explicitly 
+                 defined as an option as described above.
+                
 ACE_QUIET        When defined to be '1', 'Y' or 'y', this is the same as using
                  the quiet option described above.
 
@@ -49,9 +53,9 @@ ACE_QUIET        When defined to be '1', 'Y' or 'y', this is the same as using
 More detailed help information is available using the following
 help options
 
-ace --help info        - provides historical info
-ace --help syntax      - provides general command syntax
-ace --help commands    - provides a list of all the commands
-ace --help command     - provides detail info for a specified command
+ace --help info        - provides historical information.
+ace --help syntax      - provides general command syntax.
+ace --help commands    - provides a list of all the commands.
+ace --help command     - provides detail info for a specified command.
 ace --help ecce        - provides a comparision with ECCE.
 

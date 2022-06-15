@@ -30,6 +30,8 @@
 Global::GetLineFuncPtr Global::getLineFunc = nullptr;
 
 bool Global::interruptRequest = false;
+bool Global::executeInProgress = false;
+
 bool Global::closeRequest     = false;
 bool Global::abandonRequest   = false;
 int Global::exitCode          = 0;
@@ -94,10 +96,13 @@ std::string Global::getLine (const char* prompt)
 //
 void Global::show (const int detail, std::ostream& stream)
 {
+   // Include version ??
+   // Just do the lot ??
+
    if (detail >= 0) {
-      stream << "X = " << Global::macroX << std::endl;
-      stream << "Y = " << Global::macroY << std::endl;
-      stream << "Z = " << Global::macroZ << std::endl;
+      stream << "Macro X = " << Global::macroX << std::endl;
+      stream << "Macro Y = " << Global::macroY << std::endl;
+      stream << "Macro Z = " << Global::macroZ << std::endl;
    }
 
    if (detail >= 1) {
@@ -121,8 +126,25 @@ void Global::show (const int detail, std::ostream& stream)
 
 //------------------------------------------------------------------------------
 //
+void Global::setExecutionInProgress()
+{
+   Global::executeInProgress = true;
+}
+
+//------------------------------------------------------------------------------
+//
+void Global::clearExecutionInProgress()
+{
+   Global::executeInProgress = false;
+}
+
+//------------------------------------------------------------------------------
+//
 void Global::setInterruptRequest ()
 {
+   if (Global::executeInProgress) {
+      std::cerr << "\nSIGINT received - quiting current command sequence.\n";
+   }
    Global::interruptRequest = true;
 }
 

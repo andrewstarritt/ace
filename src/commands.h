@@ -100,6 +100,7 @@ public:
       JoinBack,
       KillBack,
       MoveBack,
+      NowBack,
       PrintBack,
       QuaryBack,
       SubstituteBack,
@@ -151,11 +152,16 @@ private:
 // alternative command sequences in case of failure. It is implemented as a list
 // of lists of AbstractCommands.
 //
+// Maybe this should be a class in own right.
+//
 typedef std::list <AbstractCommands*> Alternatives;
 typedef std::list <Alternatives> Sequences;
 
 void clearSequence (Sequences& sequence);
 
+
+//------------------------------------------------------------------------------
+//
 class CompoundCommands : public AbstractCommands {
 public:
    explicit CompoundCommands (const Sequences sequence,
