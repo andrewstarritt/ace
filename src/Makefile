@@ -69,7 +69,7 @@ $(INSTALL) : $(TARGET)  Makefile
 $(TARGET): $(OBJECTS)  Makefile
 	@echo ""
 	@mkdir -p $(BIN_DIR)
-	g++ $(OPTIONS) $(LINKER)  -o $(TARGET) $(OBJECTS)
+	g++ $(OPTIONS)  -o $(TARGET) $(OBJECTS) $(LINKER)
 	@echo ""
 
 

@@ -517,7 +517,7 @@ int main (int argc, char** argv)
    //
    while ((shellInterpretor || std::cin) && !Global::getCloseRequested()) {
 
-      std::string line = Global::getLine (Global::getPromptOn ? ">" : NULL);
+      std::string line = Global::getLine (Global::getPromptOn() ? ">" : NULL);
 
       if (backupStream.is_open()) {
          backupStream << line << std::endl;
