@@ -29,6 +29,9 @@
 #include <string>
 #include "commands.h"
 
+// All function (currently) static.
+// Make it a namespace ?
+//
 class CommandParser
 {
 public:
@@ -42,17 +45,22 @@ public:
    static void help (const std::string& item,
                      std::ostream& stream);
 
-   explicit CommandParser();
-   ~CommandParser();
-
-   // Returns NULL nullptr on failure.
+   // Returns nullptr on parse failure.
    // Returned object must be deleted to avoid memory loss.
    // Make static ??
    //
-   CompoundCommands* parse (const std::string commandLine);
+   static  CompoundCommands* parse (const std::string commandLine);
 
 private:
-   CompoundCommands* parse (const std::string commandLine, int& last, int& brackets);
+   // Don't allow a CommandParser object to be constructed.
+   //
+   explicit CommandParser();
+   ~CommandParser();
+
+   // Returns nullptr on parse failure.
+   //
+   static CompoundCommands* parseLine (const std::string commandLine,
+                                       int& last, int& brackets);
 
    static char nextChar      (const std::string commandLine, int& ptr);
    static void skipSpaces    (const std::string commandLine, int& ptr);

@@ -59,7 +59,6 @@ static void function (std::ostream& stream)                               \
 PUT_RESOURCE (copyright_info, copyright_info_txt)
 PUT_RESOURCE (help_general,   help_general_txt)
 PUT_RESOURCE (help_info,      help_info_txt)
-PUT_RESOURCE (help_ecce,      help_ecce_txt)
 PUT_RESOURCE (help_syntax,    help_syntax_txt)
 PUT_RESOURCE (help_usage,     help_usage_txt)
 PUT_RESOURCE (help_license,   LICENSE)
@@ -71,7 +70,7 @@ PUT_RESOURCE (warranty,       warranty_txt)
 //
 static void version (std::ostream& stream)
 {
-   stream << "Ace Linux Version 3.1.3  Build " << build_datetime() << std::endl;
+   stream << "Ace Linux Version 3.1.4  Build " << build_datetime() << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -88,8 +87,7 @@ static void help (int argc, char** argv)
 
    if ((option == "none") || (option == "")) {
       version (std::cout);
-      std::cout << "ace is a command line editor, based on the Edinburgh Compatible Context" << std::endl;
-      std::cout << "Editor (ECCE) written by Hamish Dewar." << std::endl;
+      std::cout << "ace is a command line editor, based on the Edinburgh Compatible Context Editor." << std::endl;
       std::cout << std::endl;
       std::cout << "Copyright (C) 1980-2022  Andrew C. Starritt" << std::endl;
       std::cout << std::endl;
@@ -102,10 +100,6 @@ static void help (int argc, char** argv)
       version (std::cout);
       std::cout << std::endl;
       help_info (std::cout);
-   }
-
-   else if (option == "ecce") {
-      help_ecce (std::cout);
    }
 
    else if (option == "syntax") {
@@ -480,7 +474,6 @@ int main (int argc, char** argv)
    // Must call Global::setGetLineFunction before this point.
    //
    DataBuffer db;
-   CommandParser parser;
    bool status;
 
    status = db.load (source);
@@ -489,7 +482,7 @@ int main (int argc, char** argv)
    }
 
    if (!option.empty()) {
-      CompoundCommands* doThis = parser.parse (option);
+      CompoundCommands* doThis = CommandParser::parse (option);
       if (doThis) {
          bool status = doThis->execute (db);
 
@@ -523,7 +516,7 @@ int main (int argc, char** argv)
          backupStream << line << std::endl;
       }
 
-      CompoundCommands* doThis = parser.parse (line);
+      CompoundCommands* doThis = CommandParser::parse (line);
       if (doThis) {
          db.clearChanged ();   // clear the "dirty" flag.
          Global::clearInterruptRequest();

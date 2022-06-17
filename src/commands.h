@@ -159,7 +159,6 @@ typedef std::list <Alternatives> Sequences;
 
 void clearSequence (Sequences& sequence);
 
-
 //------------------------------------------------------------------------------
 //
 class CompoundCommands : public AbstractCommands {

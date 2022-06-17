@@ -429,8 +429,7 @@ bool BasicCommands::execute (DataBuffer& db)
          if (text.length() > 0) {
             Global::setMacroX (text);
          } else {
-            const Global::GetLineFuncPtr getLine = Global::getGetLineFunc ();
-            std::string line = getLine ("X? ");
+            std::string line = Global::getLine (Global::getPromptOn() ? "X? " : NULL);
             Global::setMacroX (line);
          }
          result = true;
@@ -440,8 +439,7 @@ bool BasicCommands::execute (DataBuffer& db)
          if (text.length() > 0) {
             Global::setMacroY (text);
          } else {
-            const Global::GetLineFuncPtr getLine = Global::getGetLineFunc ();
-            std::string line = getLine ("Y? ");
+            std::string line = Global::getLine (Global::getPromptOn() ? "Y? " : NULL);
             Global::setMacroY (line);
          }
          result = true;
@@ -451,8 +449,7 @@ bool BasicCommands::execute (DataBuffer& db)
          if (text.length() > 0) {
             Global::setMacroZ (text);
          } else {
-            const Global::GetLineFuncPtr getLine = Global::getGetLineFunc ();
-            std::string line = getLine ("Z? ");
+            std::string line = Global::getLine (Global::getPromptOn() ? "Z? " : NULL);
             Global::setMacroZ (line);
          }
          result = true;
@@ -477,26 +474,26 @@ bool BasicCommands::execute (DataBuffer& db)
 void clearSequence (Sequences& sequence)
 {
    for (Sequences::iterator si = sequence.begin ();
-        si != sequence.end (); ++si) {
-
+        si != sequence.end (); ++si)
+   {
       Alternatives alternative = *si;
 
       for (Alternatives::iterator ai = alternative.begin ();
-           ai != alternative.end (); ++ai) {
-
+           ai != alternative.end (); ++ai)
+      {
          AbstractCommands* action = *ai;
-
          delete action;
       }
    }
 }
 
 //==============================================================================
-// CompoundCommands
+// Compound Commands
 //==============================================================================
 //
 CompoundCommands::CompoundCommands (const Sequences sequenceIn,
-                                    const int numberIn, const Modifiers modifierIn) :
+                                    const int numberIn,
+                                    const Modifiers modifierIn) :
    AbstractCommands (numberIn, modifierIn)
 {
    this->lastCommand = nullptr;
@@ -537,14 +534,14 @@ bool CompoundCommands::execute (DataBuffer& db)
    for (int j = 0; j < useRepeat; j++) {
 
       for (Sequences::iterator si = this->sequence.begin ();
-           si != this->sequence.end (); ++si) {
-
+           si != this->sequence.end (); ++si)
+      {
          Alternatives alternative = *si;
 
-         result = true;  // hypothosize this alt cmd seq will succeed.
+         result = true;  // hypothosize this alternative cmd seq will succeed.
          for (Alternatives::iterator ai = alternative.begin ();
-              ai != alternative.end (); ++ai) {
-
+              ai != alternative.end (); ++ai)
+         {
             AbstractCommands* command = *ai;
             result = command->execute (db);
             if (Global::getCloseRequested()) return true;
@@ -553,14 +550,16 @@ bool CompoundCommands::execute (DataBuffer& db)
             // Save the last executed basic command.
             //
             CompoundCommands* cc = dynamic_cast <CompoundCommands*> (command);
-            this->lastCommand = cc ? cc->getLastCommand() :  command;
+            this->lastCommand = cc ? cc->getLastCommand() : command;
 
             if (!result) break;
          }
 
-         // if this alternative command sequence all ok, then we are done.
+         // If this alternative command sequence all ok, then we are done.
          //
          if (result) break;
+
+         // If not, we start the next alternative command sequence if it exists.
       }
 
       if (!result) break;

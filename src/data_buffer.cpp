@@ -593,7 +593,7 @@ bool DataBuffer::getDirection (const Direction direction, const int number)
 
    bool result = true;
    for (int j = 0; j < number; j++) {
-      std::string line = getLine (":");
+      std::string line = getLine (Global::getPromptOn() ? ":" : NULL);
       if (line == ":") {
          result = false;
          break;

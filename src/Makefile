@@ -42,7 +42,6 @@ OBJECTS += $(OBJ_DIR)/data_buffer.o
 OBJECTS += $(OBJ_DIR)/global.o
 
 OBJECTS += $(OBJ_DIR)/copyright_info.o
-OBJECTS += $(OBJ_DIR)/help_ecce.o
 OBJECTS += $(OBJ_DIR)/help_general.o
 OBJECTS += $(OBJ_DIR)/help_info.o
 OBJECTS += $(OBJ_DIR)/help_syntax.o
@@ -106,9 +105,6 @@ $(OBJ_DIR)/help_general.o : $(SENTINAL)  help_general.txt  Makefile
 
 $(OBJ_DIR)/help_info.o : $(SENTINAL)  help_info.txt  Makefile
 	objcopy  $(RESOPTS) help_info.txt      $(OBJ_DIR)/help_info.o
-
-$(OBJ_DIR)/help_ecce.o : $(SENTINAL)  help_ecce.txt  Makefile
-	objcopy  $(RESOPTS) help_ecce.txt      $(OBJ_DIR)/help_ecce.o
 
 $(OBJ_DIR)/help_syntax.o : $(SENTINAL)  help_syntax.txt  Makefile
 	objcopy  $(RESOPTS) help_syntax.txt    $(OBJ_DIR)/help_syntax.o

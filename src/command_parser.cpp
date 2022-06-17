@@ -598,7 +598,9 @@ CompoundCommands* CommandParser::parse (const std::string commandLine)
       }
    }
 
-   result = this->parse (workLine, last, brackets);
+   // This does most of the hard parsing work.
+   //
+   result = CommandParser::parseLine (workLine, last, brackets);
 
    if (result && (brackets > 0)) {
       std::cerr << "Unmatched ( - line ignored" << std::endl;
@@ -627,9 +629,9 @@ CompoundCommands* CommandParser::parse (const std::string commandLine)
 
 //------------------------------------------------------------------------------
 // Note: this is called recusively for compound commands.
-//
-CompoundCommands* CommandParser::parse (const std::string commandLine,
-                                        int& last, int& brackets)
+// private
+CompoundCommands* CommandParser::parseLine (const std::string commandLine,
+                                            int& last, int& brackets)
 {
    CompoundCommands* result = nullptr;
    last = 0;   // ensure not erroneous
@@ -654,7 +656,7 @@ CompoundCommands* CommandParser::parse (const std::string commandLine,
          std::string subLine = commandLine.substr (ptr);
          int relative;
 
-         command = parse (subLine, relative, brackets);
+         command = CommandParser::parseLine (subLine, relative, brackets);
          if (!command) {
             clearSequence (seq);
             return nullptr;
@@ -891,7 +893,10 @@ int CommandParser::getInt (const std::string commandLine, int& ptr)
       do {
          ptr++;  // "read" the next char
          int d = x - '0';
+
+         // Check if 10*result + d would overflow.
          if (result > ((0x7FFFFFFF - d) / 10)) return magicOverflow;
+
          result = 10*result + d;
          x = CommandParser::nextChar (commandLine, ptr);
       } while ('0' <= x && x <= '9');

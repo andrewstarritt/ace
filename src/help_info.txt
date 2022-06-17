@@ -2,40 +2,7 @@ ACE was originally developed at Marconi Radar Systems Ltd, Chelmsford circa 1980
 It was based on the Edinburgh Compatible Context Editor (ECCE) developed at the
 University of Edinburgh during the 1970s by Hamish Dewar.
 
-Originally written in Coral 66 for the GEC OS4000 mini computer, versions were
-also created for both Locus 16 and Myriad computers. Circa 1990, an Ada83 version
-written for VAX-VMS which was readily ported to Rational R1000, and later to Linux
-and Windows using the Gnat Ada compiler. The code has since been updated to Ada2005
-to take advantage of the unbounded strings and child packages.
+Further details are available in the README.md file.
 
-A graphical based version witten using Borland Delphi is available for Windows.
+A comparision with ECCE is also provided in the README.md
 
-Due to the removal of Gnat Ada suit from CentOS 8, ACE was transcoded to C++ in 2020.
-This version is definitly Linux specific in places.
-
-A version of ECCE may be found at http://ecce.sourceforge.net/ together with other
-usefull information, much of it relavent to ACE in spirit, if not in detail. 
-A comparison between ACE and ECCE can be shown using:
-
-   ace --help ecce
-
-
-Release 3 Realese Notes
-
-Transcoded to C++.
-
-Added some new backward/reverse commands (inspired by ECCE cited above): 
-
-A-, B-, G-, I-, N-, P-, Q-, S-, W-.
-
-The substitute (S/S-) commands now allowed a repation number.
-
-The Now (N/N-) commands. The date time format of the inserted text has changed
-from the in-your-face "SUN 12 JUN 2022 16:04:22" to "Sun Jun 12 16:04:29 2022"
-
-A new special command (%N) toggles on/off line numbering by the print (P/P-) 
-commands.
-
-Colourised **END**, ^ (cursor) and (new) line numbers.
-
-Some options can now be defined as environment varaiables.

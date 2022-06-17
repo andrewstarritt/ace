@@ -53,9 +53,8 @@ ACE_QUIET        When defined to be '1', 'Y' or 'y', this is the same as using
 More detailed help information is available using the following
 help options
 
-ace --help info        - provides historical information.
+ace --help info        - provides brief historical information.
 ace --help syntax      - provides general command syntax.
 ace --help commands    - provides a list of all the commands.
-ace --help command     - provides detail info for a specified command.
-ace --help ecce        - provides a comparision with ECCE.
+ace --help command     - provides detail info for the specified command.
 
