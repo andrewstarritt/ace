@@ -8,6 +8,7 @@ Hamish Dewar.
 
 [Why ACE](#why)<br>
 [Usage](#usage)<br>
+[Environment Variables](#env)<br>
 [Command Syntax](#syntax)<br>
 [Commands](#commands)<br>
 [Macros](#macros)<br>
@@ -20,7 +21,7 @@ Hamish Dewar.
 Nostalga and because I can; and because I still actually use ACE professionally
 now and then.
 I do not use it for editing code (I'm too used to modern graphical editors now),
-but used for ad hoc text processing/manipulation - maybe I should learn awk.
+however is used for ad hoc text processing/manipulation - maybe I should learn awk.
 
 ## <a name = "usage"/>Usage
 
@@ -41,6 +42,16 @@ This means that ace will __not__ break any file system hard links associated
 with the file.
 
 
+## <a name = "env"/>Environment Variables
+
+### ACE_OPTION
+
+This environment variable provides the default value for the --options option.
+
+### ACE_QUIET
+
+When defined to be '1', 'Y' or 'y', this is the same as using the --quiet option
+
 ## <a name = "syntax"/>Command Syntax
 
 The general command syntax is available from ace by running:
@@ -50,7 +61,7 @@ The general command syntax is available from ace by running:
 
 ## <a name = "commands"/>Commands
 
-The set of available commands is provided by ace by ruuning:
+The set of available commands is provided by ace by running:
 
     ace --help  commands
 
@@ -116,7 +127,7 @@ Run  ace --help for more detail.
 
 ### Versions 1 and 2
 
-None available.
+No information available.
 
 ## <a name = "history"/>Historical Information
 
@@ -168,6 +179,9 @@ Insert and Substitute set/use the same last inserted/modified text.
 
 Connect and Output also allow the use of & and set/use the same filename text.
 
+Just to be clear, there are three separate and distinct last used strings, each
+represented by &.
+
 See Quary and %Exchange below to see how the last serched/modified text values
 can be modified.
 
@@ -193,9 +207,9 @@ T- : TraverseBack<br>
 U- : UncoverBack<br>
 V- : VerifyBack<br>
 
-These turned out very similar to the backwards command subsequently
-discovered in ECCE (great minds think alike), however read the
-searching backwards notes below.
+These turned out very similar to the backwards/reverse command subsequently
+discovered in ECCE (great minds think alike), however read the searching
+backwards notes below.
 
 For release 3, the following commands have also been added.
 These are alligned, where possible, with the functionality discovered in the
@@ -216,7 +230,9 @@ W- : WriteBack<br>
 
 The following special commands have been added to ACE.
 
+%B : Backup     - save current content of the edit session to the to/target file.<br>
 %E : Exchange   - swap last search for text and last inserted text strings.<br>
+%B : Intermediate - save current content of the edit session to a temporary file.<br>
 %L : LimitSet   - re-define the of number of lines searched for text.<br>
 %N : Numbers    - toggle on/off line number inclusion with P/P-.<br>
 %P : Prompt     - toggle off/on the '>' command prompt<br>
@@ -231,7 +247,7 @@ toggle flags, repeat limit, search limit, terminal max.<br>
 %Z : DefineZ    - defines macro Z.<br>
 
 
-#### Special Commands General307
+#### Special Commands General
 
 ECCE does not allow regular commands and special commands to be mixed
 in the same command line.
@@ -268,7 +284,7 @@ ECCE uses C for case conversion.
 
 #### Qualifiers
 
-ECCE Uses '\' and '?' to invert the command success and forces a no fail
+ECCE Uses '\\' and '?' to invert the command success and forces a no fail
 status repectively.
 ACE allows these, however it also allows '~' and '@' for invert and no fail repectively.<br>
 [On the GEC 4000 series both '\\' and '?' where special terminal escape characters]
@@ -318,9 +334,9 @@ There is an implicit P1 executed when ACE starts.
 The end of file is denoted by \*\*END\*\* as opposed to \*\*\* End \*\*\*.
 
 %A Abandon vs. Abort. Essentially the same idea.
-Abandon allows an excit code to be specified.
+Abandon allows an exit code to be specified.
 
-The last line has newline (\\n) chacter appended if needs (jist like vi).
+The last line has newline (\\n) chacter appended if needs be (just like vi).
 
 #### Size/Implementation
 ECCE is 1863 lines,  885 statements, of C code, while<br>
@@ -330,5 +346,5 @@ Note:<br>
 ECCE - Edinburgh Compatible Context Editor<br>
 ACE  - ACE Context Editor
 
-<font size="-1">Last updated: Fri Jun 17 14:00:00 AEST 2022</font>
+<font size="-1">Last updated: Sun Aug  7 16:22:00 AEST 2022</font>
 <br>

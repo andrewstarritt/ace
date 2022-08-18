@@ -23,11 +23,17 @@
  */
 
 #include "global.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <iostream>
 
 // all static
 //
 Global::GetLineFuncPtr Global::getLineFunc = nullptr;
+
+std::string Global::targetFilename = "";
 
 bool Global::interruptRequest = false;
 bool Global::executeInProgress = false;
@@ -122,6 +128,44 @@ void Global::show (const int detail, std::ostream& stream)
       stream << "Search Limit: " << Global::searchMax << std::endl;
       stream << "Terminal Max: " << Global::terminalMax << std::endl;
    }
+}
+
+//------------------------------------------------------------------------------
+//
+void Global::setTargetFilename (const std::string filename)
+{
+   Global::targetFilename = filename;
+}
+
+//------------------------------------------------------------------------------
+//
+std::string Global::getTargetFilename ()
+{
+   return Global::targetFilename;
+}
+
+//------------------------------------------------------------------------------
+//
+std::string Global::getTemporaryFilename ()
+{
+   static int count = 0;
+
+   char tempName [64];
+
+   // We include uid/pid to enhance mkstemp uniqueness and to help user to find
+   // own files in a multi-user environment, and a count to provide name ordering.
+   //
+   const uid_t u = getuid();
+   const pid_t p = getpid();
+   snprintf (tempName, sizeof (tempName), "/tmp/ace.tmp_%u_%u_%03d_XXXXXX", u, p, ++count);
+
+   // We want a name, not open file descriptor (int) value, so we
+   // immediately close the file.
+   //
+   const int tempFd = mkstemp (tempName);
+   close (tempFd);
+
+   return std::string (tempName);
 }
 
 //------------------------------------------------------------------------------

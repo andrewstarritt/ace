@@ -45,6 +45,12 @@ public:
 
    static void show (const int detail, std::ostream& stream);
 
+   static void setTargetFilename (const std::string filename);
+   static std::string getTargetFilename ();
+
+   // More a utility than a global, however ...
+   static std::string getTemporaryFilename ();
+
    static void setExecutionInProgress();
    static void clearExecutionInProgress();
 
@@ -105,6 +111,7 @@ private:
    ~Global();
 
    static GetLineFuncPtr getLineFunc;
+   static std::string targetFilename;
 
    static bool interruptRequest;
    static bool executeInProgress;

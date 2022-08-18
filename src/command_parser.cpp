@@ -43,14 +43,14 @@ typedef BasicCommands BC;   // alias for brevity
 //
 static const BasicCommands::Kinds charLookup [26][3] = {
    { BC::Absorbe,     BC::AbsorbeBack,    BC::Abandon        },
-   { BC::BreakLine,   BC::BreakLineBack,  BC::Void           },
+   { BC::BreakLine,   BC::BreakLineBack,  BC::Backup         },
    { BC::Connect,     BC::Void,           BC::Close          },
    { BC::DeleteText,  BC::DeleteBack,     BC::Void           },
    { BC::Erase,       BC::EraseBack,      BC::Exchange       },
    { BC::Find,        BC::FindBack,       BC::Full           },
    { BC::Get,         BC::GetBack,        BC::Void           },
    { BC::UpperCase,   BC::LowerCase,      BC::Void           },
-   { BC::Insert,      BC::InsertBack,     BC::Void           },
+   { BC::Insert,      BC::InsertBack,     BC::Intermediate   },
    { BC::Join,        BC::JoinBack,       BC::Void           },
    { BC::Kill,        BC::KillBack,       BC::Void           },
    { BC::Left,        BC::Void,           BC::LimitSet       },
@@ -239,6 +239,9 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::Abandon,         "Abandon",         Code,
      "Abandon edit session (exit code 1).",
      "None." },
+   { BC::Backup,          "Backup",          None,
+     "Save to target file without closing the edit session.",
+     "When wrting to standard output (shell mode) or no write permission." },
    { BC::Close,           "Close",           Code,
      "Close edit session (exit code 0).",
      "None." },
@@ -247,6 +250,9 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
      "None." },
    { BC::Full,            "Full",            None,
      "Full monitoring mode - current line printed after every command line.",
+     "None." },
+   { BC::Intermediate,    "Intermediate",    None,
+     "Save to /tmp/ file without closing the edit session.",
      "None." },
    { BC::LimitSet,        "LimitSet",        Code,
      "Set interpretation of * for search limit - default is 100000.",
@@ -416,7 +422,8 @@ void CommandParser::commandHelp (const BasicCommands::Kinds kind,
 void CommandParser::commandSummary (std::ostream& stream)
 {
    const int numberCols = 4;
-   const int numberRows = (ARRAY_LENGTH (commandLookup) + numberCols - 1)/ numberCols;
+   const int numberItems = ARRAY_LENGTH (commandLookup) - 1;  // exclude Void
+   const int numberRows = (numberItems + numberCols - 1)/ numberCols;
 
    for (int r = 0; r < numberRows; r++) {
       for (int c = 0; c < numberCols; c++) {

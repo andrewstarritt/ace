@@ -112,12 +112,14 @@ public:
       // Special %X commands
       //
       Abandon,
+      Backup,
       Close,
       Exchange,
       Full,
+      Intermediate,
       LimitSet,
       Monitor,
-      Numbers,  // Line Numbers
+      Numbers,  // as in Line Numbers
       Prompt,
       Quiet,
       RepeatSet,

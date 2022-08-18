@@ -361,6 +361,16 @@ bool BasicCommands::execute (DataBuffer& db)
          result = true;
          break;
 
+      case Backup:
+         if (Global::getTargetFilename() != DataBuffer::stdInOut()){
+            result = db.save(Global::getTargetFilename());
+         } else {
+            // We can't backup to target in shell mode, or when writing directly
+            // to standard out.
+            result = false;
+         }
+         break;
+
       case Close:
          Global::requestClose (this->limit);
          result = true;
@@ -378,6 +388,10 @@ bool BasicCommands::execute (DataBuffer& db)
       case Full:
          Global::setMode (Global::Full);
          result = true;
+         break;
+
+      case Intermediate:
+         result = db.save (Global::getTemporaryFilename());
          break;
 
       case LimitSet:

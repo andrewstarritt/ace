@@ -70,7 +70,7 @@ PUT_RESOURCE (warranty,       warranty_txt)
 //
 static void version (std::ostream& stream)
 {
-   stream << "Ace Linux Version 3.1.4  Build " << build_datetime() << std::endl;
+   stream << "Ace Linux Version 3.1.5  Build " << build_datetime() << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -427,6 +427,8 @@ int main (int argc, char** argv)
       }
    }
 
+   Global::setTargetFilename (target);
+
    // Command stream processing.
    //
    if (optionFlags & ofCommand) {
@@ -554,32 +556,19 @@ int main (int argc, char** argv)
    }
 
    // Shutting down
-   // Save if not abandoned/aborted.
    //
    if (backupStream.is_open()) {
       backupStream.close();
    }
 
+   // Save if not abandoned/aborted.
+   //
    if (!Global::getAbandonRequested()) {
       status = db.save (target);
       if (!status) {
-
-         char tempName [40];
-
-         // We include uid/pid to enhance mkstemp uniqueness.
-         //
-         const uid_t u = getuid();
-         const pid_t p = getpid();
-         snprintf (tempName, sizeof (tempName), "/tmp/ace.tmp_%u_%u_XXXXXX", u, p);
-
-         // We want a name, not open file descriptor (int) value, so we
-         // immediately close the file.
-         //
-         const int tempFd = mkstemp (tempName);
-         close (tempFd);
-
          std::cerr << "Attempting to save contents to an alternative file..." << std::endl;
-         status = db.save (tempName);
+         std::string name = Global::getTemporaryFilename();
+         status = db.save (name);
          if (status) {
             Global::setExitCode (32);
          } else {
