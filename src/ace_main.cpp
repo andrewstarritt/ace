@@ -436,7 +436,7 @@ int main (int argc, char** argv)
       commandStream.open (command);
       bool result = commandStream.is_open ();
       if (!result) {
-         std::cerr << "connot open command file: " << command << std::endl;
+         std::cerr << "connot open command file: '" << command << "' : ";
          perror ("");
          return 4;
       }
@@ -449,7 +449,7 @@ int main (int argc, char** argv)
       if (fd >= 0) {
          dup2 (fd, STDERR_FILENO); // duplicate fd into standard error
       } else {
-         std::cerr << "Cannot open report stream " << report << " : ";
+         std::cerr << "Cannot open report stream '" << report << "' : ";
          perror ("");
          return 4;
       }
@@ -468,7 +468,7 @@ int main (int argc, char** argv)
    if ((optionFlags & ofBackup) == ofBackup) {
       backupStream.open(backup);
       if (!backupStream.is_open()) {
-         std::cerr << "Warning: Cannot open backup stream " << backup << " : ";
+         std::cerr << "Warning: Cannot open backup stream '" << backup << "' : ";
          perror ("");
       }
    }

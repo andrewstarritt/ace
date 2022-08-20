@@ -18,12 +18,12 @@ Options:
 -b, --backup     defines command backup file. No default, there is no
                  command backup if not specified.
 
--s, --shell      ace used as shell interpretor, i.e. used in script file thus:
+-s, --shell      ace used as shell interpretor, i.e. used in script file like this:
 
                      #!/usr/local/bin/ace -s
 
-                 The from file is set to standard input, the target file is
-                 set to standard output. Command are read from the script file,
+                 The source file is set to standard input, the target file is
+                 set to standard output. Commands are read from the script file,
                  and all reports are sent to /dev/null
 
 -q, --quiet      quiet, i.e. suppress output of copyright info on program start.

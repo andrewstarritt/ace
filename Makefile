@@ -24,7 +24,7 @@
 
 # Allows make to be run from the top level.
 #
-.PHONY : all clean  uninstall FORCE
+.PHONY : all clean  uninstall help FORCE
 
 # Currently only one sub-directory.
 #
@@ -38,6 +38,14 @@ all install clean uninstall: $(SUBDIRS)
 
 $(SUBDIRS): FORCE
 	$(MAKE) -C $@  $(MAKECMDGOALS) 
+
+help:
+	@echo "Just type 'make' to build ace. Run 'make install' to build and install"
+	@echo "ace to this location:  /usr/local/bin/ace"
+	@echo "The use of sudo before 'make install' is not required as the sudo call" 
+	@echo "is included within the Makefile itself."
+	@echo "Note: There is no configure step."
+	@echo ""
 
 # Force targets.
 #
