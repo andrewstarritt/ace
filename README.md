@@ -21,7 +21,8 @@ Hamish Dewar.
 Nostalga and because I can; and because I still actually use ACE professionally
 now and then.
 I do not use it for editing code (I'm too used to modern graphical editors now),
-however is used for ad hoc text processing/manipulation - maybe I should learn awk.
+however it is used for ad hoc text processing/manipulation - maybe I should
+learn awk.
 
 ## <a name = "usage"/>Usage
 
@@ -104,6 +105,68 @@ execution time.
 
 ### Version 3
 
+Transcoded to C++, and more.
+
+### 3.1.6
+
+Fixed a bug re inverting fail status to successful (missing break in case
+statement).
+
+Started adding Release Notes to this README.md file.
+
+### 3.1.5
+
+Added the %B and %I backup commands.
+The former saves work in progress to the target file without closing the edit
+session; note it does nothing in shell mode as the output is standard output.
+The later saves work in progress to unique temporary file (in the /tmp directory).
+
+### 3.1.4
+
+Rationalised what is in the inbuilt help and what is in the README.md file,
+in order to minimise unnecessary duplication.
+
+changed the order of link options to keep Debian (bullseye) happy.
+
+If -o,--option is not defined, look for and use the ACE_OPTION environment
+variable instead.
+
+Allow repeated substitutions, i.e. commands for the form  f/.../ s/.../n
+Added n- (to match i- and s-) for completeness.
+
+Checked for overflow of repeat and search limit values, i.e. values > 2147483647.
+
+Modified the SIGINT received message - this is now only output during actual
+command exection.
+
+A number of messages are now directed to stderr as opposed to stdout.
+
+More help/documentation updates.
+
+### 3.1.3
+
+Allow ACE_QUIET environment variable in lieu of --quiet.
+
+Allow X, Y and Z macros to be interactively defined a la version 2.
+
+Implement set mark (%S), and go with green \*\*END\*\*,  red cursor ^
+and yellow line numbers.
+
+More help/documentation updates.
+Added an ACE vs. ECCE comparison to the README file.
+
+### 3.1.2
+
+In full monitor mode, stop print if last command was a print.
+Fixed bug in B (break) command when at the end of file.
+Implemented B-, I- and Q- commands.
+
+Improved command line parseing error messages.
+
+Forward/Reverse code rationalisation.
+
+### 3.1.1
+
 Changes since release 2.
 
 Transcoded to C++.
@@ -117,10 +180,10 @@ The substitute (S/S-) commands now allow a repetition number.
 The Now (N/N-) commands. The date time format of the inserted text has changed
 from the in-your-face "SUN 12 JUN 2022 16:04:22" to "Sun Jun 12 16:04:29 2022"
 
-A new special command (%N) toggles on/off displlaying line numbers by the
+A new special command (%N) toggles on/off displaying line numbers by the
 print (P/P-) command.
 
-The text for \*\*END\*\*, ^ (cursor) and (new) line numbers has been colourised.
+The text for \*\*END\*\*, ^ (cursor) and line numbers have been colourised.
 
 Some options can now be defined as environment varaiables.
 Run  ace --help for more detail.
@@ -346,5 +409,5 @@ Note:<br>
 ECCE - Edinburgh Compatible Context Editor<br>
 ACE  - ACE Context Editor
 
-<font size="-1">Last updated: Sun Aug  7 16:22:00 AEST 2022</font>
+<font size="-1">Last updated: Thu Sep 15 20:12:19 2022</font>
 <br>

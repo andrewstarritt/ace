@@ -70,7 +70,7 @@ PUT_RESOURCE (warranty,       warranty_txt)
 //
 static void version (std::ostream& stream)
 {
-   stream << "Ace Linux Version 3.1.5  Build " << build_datetime() << std::endl;
+   stream << "Ace Linux Version 3.1.6  Build " << build_datetime() << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -134,6 +134,12 @@ static void signalCatcher (int sig)
    }
 }
 
+//------------------------------------------------------------------------------
+//
+inline static void inputTerminated() {
+   std::cerr << "input terminated" << std::endl;
+   Global::requestClose (1);
+}
 
 //------------------------------------------------------------------------------
 // Used when input is from standard input
@@ -142,20 +148,49 @@ static std::string getFromStandardInput (const char* prompt)
 {
    std::string result;
 
-   char* line = readline (prompt);
-   if (line) {
-      result = line;
-
-      // If not an empty line, then add to the history.
-      // TODO check for line with only white space as well.
+   // Are we interactive or using pipe/file for standard input?
+   // See https://stackoverflow.com/questions/15467164/why-does-readline-echo-stdin-to-stdout
+   //
+   if (isatty(STDIN_FILENO)) {
+      // interactive
       //
-      if (line [0] != '\0') {
-         add_history (line);
+      rl_outstream = stderr;  // Reports and prompts goto stderr
+      char* line = readline (prompt);
+      if (line) {
+         result = line;
+
+         // If not an empty line, then add to the history.
+         // TODO check for line with only white space as well.
+         //
+         if (line [0] != '\0') {
+            add_history (line);
+         }
+
+      } else {
+         inputTerminated();
       }
 
    } else {
-      std::cerr << "input terminated" << std::endl;
-      Global::requestClose (1);
+      // pipe/file
+      //
+      char* line = NULL;
+      size_t bufsize = 0;  // not used per se
+      ssize_t numberRead;
+
+      numberRead = getline (&line, &bufsize, stdin);
+      if (numberRead >= 0) {
+         int n = strnlen(line, 2048);  // what is a senible maximum here?
+
+         // Remove delimiter if need be.
+         if ((n > 0) && (line[n-1] == '\n')) {
+            line[n-1] = '\0';
+            n--;
+         }
+         result = line;
+
+      } else {
+         inputTerminated();
+      }
    }
 
    return result;
@@ -175,18 +210,15 @@ static std::string getFromCommandStream (const char* prompt)
 
       if (!commandStream.good ()) {
          // end of file
-         std::cerr << "input terminated" << std::endl;
-         Global::requestClose (1);
+         inputTerminated();
       }
 
    } else {
-      std::cerr << "input terminated" << std::endl;
-      Global::requestClose (1);
+      inputTerminated();
    }
 
    return result;
 }
-
 
 //------------------------------------------------------------------------------
 //
@@ -507,7 +539,7 @@ int main (int argc, char** argv)
    signal (SIGINT,  signalCatcher);
 
    //---------------------------------------------------------------------------
-   // Main processing parse/execute loop
+   // Main processing read/parse/execute loop
    //---------------------------------------------------------------------------
    //
    while ((shellInterpretor || std::cin) && !Global::getCloseRequested()) {

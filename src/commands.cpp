@@ -68,6 +68,7 @@ bool AbstractCommands::twizzle (const bool status) const
 
       case Invert:
          result = !status;
+         break;
 
       default:
          result = false;
