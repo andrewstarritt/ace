@@ -70,7 +70,7 @@ PUT_RESOURCE (warranty,       warranty_txt)
 //
 static void version (std::ostream& stream)
 {
-   stream << "Ace Linux Version 3.1.6  Build " << build_datetime() << std::endl;
+   stream << "Ace Linux Version 3.1.7  Build " << build_datetime() << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -146,6 +146,7 @@ inline static void inputTerminated() {
 //
 static std::string getFromStandardInput (const char* prompt)
 {
+   static std::string lastLine = "";  // copy of the last line
    std::string result;
 
    // Are we interactive or using pipe/file for standard input?
@@ -154,7 +155,7 @@ static std::string getFromStandardInput (const char* prompt)
    if (isatty(STDIN_FILENO)) {
       // interactive
       //
-      rl_outstream = stderr;  // Reports and prompts goto stderr
+      rl_outstream = stderr;  // Reports and prompts go to standar error.
       char* line = readline (prompt);
       if (line) {
          result = line;
@@ -162,8 +163,9 @@ static std::string getFromStandardInput (const char* prompt)
          // If not an empty line, then add to the history.
          // TODO check for line with only white space as well.
          //
-         if (line [0] != '\0') {
+         if ((line [0] != '\0') && (line != lastLine)) {
             add_history (line);
+            lastLine = line;
          }
 
       } else {

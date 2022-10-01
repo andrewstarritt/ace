@@ -327,8 +327,21 @@ bool DataBuffer::locate (const int searchLimit, const std::string text,
 bool DataBuffer::locateBack (const int searchLimit, const std::string text,
                              const int skip)
 {
+   const int textLen = int(text.length());
+
    std::string line = this->currentLine();
-   std::string::size_type pos = line.rfind (text, this->colNo - skip);
+
+   // Altough rfind searches backwards, it still looks forward from the given
+   // posiition. Also must check if this takes us to before the start of the line.
+   //
+   int searchFrom = this->colNo - textLen - skip;
+
+   std::string::size_type pos;
+   if (searchFrom >= 0) {
+      pos = line.rfind (text, searchFrom);
+   } else {
+      pos = std::string::npos;  // not found postion
+   }
 
    int searchLineCount = 1;
    while ((pos == std::string::npos) && (searchLineCount < searchLimit)) {
@@ -343,7 +356,12 @@ bool DataBuffer::locateBack (const int searchLimit, const std::string text,
       this->setChanged ();
       searchLineCount++;
 
-      pos = line.rfind (text, this->colNo);
+      searchFrom = this->colNo - textLen;
+      if (searchFrom >= 0) {
+         pos = line.rfind (text, searchFrom);
+      } else {
+         pos = std::string::npos;  // not found postion
+      }
    }
 
    bool result;

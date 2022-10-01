@@ -107,6 +107,10 @@ execution time.
 
 Transcoded to C++, and more.
 
+### 3.1.7
+
+Fixed problem with backward searches.
+
 ### 3.1.6
 
 Fixed a bug re inverting fail status to successful (missing break in case
