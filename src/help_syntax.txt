@@ -16,8 +16,9 @@ The qualifier (also optional) is a single character, one of {'\','~','@','?'}.
 '\' and '~' inverts the command success status while '@' and '?' forces a
 no fail status.
 
-'*' or '0' may be used as a combined repeat qualified and is equivilent 
-to 50000@, i.e. essentially do many times as possible, but do not fail.
+'*' or '0' may be used as a combined repeat and no fail qualifier and is 
+equivilent  to 50000@, i.e. essentially do many times as possible, but do
+not fail.
 
 Special commands are preceeded by a %, and in general do not affect the
 the contents of the file. %C Closes the edit session.

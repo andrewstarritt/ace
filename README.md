@@ -107,6 +107,11 @@ execution time.
 
 Transcoded to C++, and more.
 
+### 3.1.8
+
+Implemented uncover back (u-) commands.
+Also fixed some corener case null string search anomalies.
+
 ### 3.1.7
 
 Fixed problem with backward searches.
@@ -180,6 +185,9 @@ Added some new backward/reverse commands (inspired by ECCE):
 A-, B-, G-, I-, N-, P-, Q-, S-, W-
 
 The substitute (S/S-) commands now allow a repetition number.
+
+U- now uncovers to after the text, or before the text in the backwards direction,
+such that the text itself is not deleted.
 
 The Now (N/N-) commands. The date time format of the inserted text has changed
 from the in-your-face "SUN 12 JUN 2022 16:04:22" to "Sun Jun 12 16:04:29 2022"
@@ -261,7 +269,7 @@ C  : Connect - open secondary input file<br>
 H  : UpperCase - convert the next *n* character to upper case<br>
 N  : Now - insert current date time<br>
 O  : Output - create secondary input file<br>
-Q  : Quary - capture *n* character as last insert text.<br>
+Q  : Quary - capture *n* characters and set as last insert text.<br>
 W  : Write - put line to secondary output file<br>
 
 The following back/reverse commands are available:
@@ -299,7 +307,7 @@ The following special commands have been added to ACE.
 
 %B : Backup     - save current content of the edit session to the to/target file.<br>
 %E : Exchange   - swap last search for text and last inserted text strings.<br>
-%B : Intermediate - save current content of the edit session to a temporary file.<br>
+%I : Intermediate - save current content of the edit session to a temporary file.<br>
 %L : LimitSet   - re-define the of number of lines searched for text.<br>
 %N : Numbers    - toggle on/off line number inclusion with P/P-.<br>
 %P : Prompt     - toggle off/on the '>' command prompt<br>
@@ -329,7 +337,7 @@ Mixing commands and special commands extends the capability of ACE, e.g.
 #### Searching Backwards
 
 In ACE F- leaves the cursor before the start of the text as "viewed" from
-the start of the file, while in ECCE leaves the cursor before text as "viewed"
+the start of the file, whereas ECCE leaves the cursor before text as "viewed"
 with respect to the direction of search, i.e. after the search text.
 
 Likewise, in ACE T- leaves the cursor after the end of the text as "viewed"
@@ -354,7 +362,7 @@ ECCE uses C for case conversion.
 ECCE Uses '\\' and '?' to invert the command success and forces a no fail
 status repectively.
 ACE allows these, however it also allows '~' and '@' for invert and no fail repectively.<br>
-[On the GEC 4000 series both '\\' and '?' where special terminal escape characters]
+[On the GEC 4000 series, both '\\' and '?' were special terminal escape characters]
 
 #### Comments
 
@@ -387,7 +395,7 @@ Trival example:
 ECCE repeats the last command N times when the sole entry on the command line
 is an integer number.
 ACE does not provide this functionality, however ACE does provide command
-history and command editing a la bash.
+history together with command editing à la bash.
 
 #### End of Input (Ctrl+D)
 
@@ -407,11 +415,11 @@ The last line has newline (\\n) chacter appended if needs be (just like vi).
 
 #### Size/Implementation
 ECCE is 1863 lines,  885 statements, of C code, while<br>
-ACE  is 4516 lines, 1480 statements, of C++ code.
+ACE  is 4704 lines, 1540 statements, of C++ code.
 
 Note:<br>
 ECCE - Edinburgh Compatible Context Editor<br>
 ACE  - ACE Context Editor
 
-<font size="-1">Last updated: Thu Sep 15 20:12:19 2022</font>
+<font size="-1">Last updated: Thu Jan 26 17:11:28 AEDT 2023</font>
 <br>

@@ -331,8 +331,8 @@ bool DataBuffer::locateBack (const int searchLimit, const std::string text,
 
    std::string line = this->currentLine();
 
-   // Altough rfind searches backwards, it still looks forward from the given
-   // posiition. Also must check if this takes us to before the start of the line.
+   // Although rfind searches backwards, it still looks forward from the given
+   // position. Also must check if this takes us to before the start of the line.
    //
    int searchFrom = this->colNo - textLen - skip;
 
@@ -1113,28 +1113,41 @@ bool DataBuffer::substituteDirection (const Direction direction,
                                       const int number)
 {
    if (this->lineIter == this->data.end ()) return false;
-
    if (this->lastSearchType == stVoid) return false;
 
    const std::string line = this->currentLine ();
 
+   const std::string::size_type replaceLen = this->lastSearchText.length ();
+
+   // Do we replace the text on the left or right of the cursor?
+   //
+   const bool isLeft =
+         (this->lastSearchType == stTraverse)    ||
+         (this->lastSearchType == stUncoverBack) ||
+         (this->lastSearchType == stVerifyBack)  ||
+         (this->lastSearchType == stTraverseBack);
+
+   if (isLeft) {
+      this->colNo = MAX (0, this->colNo - replaceLen);
+   }
+
    // We should not need this MIN check here, but does no harm.
    //
-   const std::string::size_type replaceLen = this->lastSearchText.length ();
    const int from = MIN (line.length(), this->colNo + replaceLen);
 
    const std::string part1 = line.substr (0, this->colNo);
    const std::string part2 = line.substr (from);  // to end of the line
 
    // Replicated substituted text.
-   std::string stext = "";
+   //
+   std::string subText = "";
    for (int j = 0; j < number; j++) {
-      stext.append (text);
+      subText.append (text);
    }
 
-   this->replaceLine (part1 + stext + part2);
+   this->replaceLine (part1 + subText + part2);
    if (direction == Forward) {
-      this->colNo += stext.length();
+      this->colNo += subText.length();
    }
 
    this->setChanged ();
@@ -1184,16 +1197,25 @@ bool DataBuffer::find (const int limit, const std::string text, const int number
 //
 bool DataBuffer::findBack (const int limit, const std::string text, const int number)
 {
+   // Set skip 1 if the last command was a findBack and
+   // we are finding the same text.
+   //
+   int skip = ((this->lastSearchType == stFindBack) &&
+               (this->lastSearchText == text)) ? 1 : 0;
+
    bool result = true;
    for (int j = 0; j < number; j++) {
-      result = this->locateBack (limit, text, 0);
+      result = this->locateBack (limit, text, skip);
       if (!result) break;
+
       this->lastSearchType = stFindBack;
       this->lastSearchText = text;
 
       // locateBack goes to start/left of text, even when searching backwards.
-      // Note: f- and t- have swapped meanings between ace and ecce re
+      // Note: f- and t- have swapped meanings between ace and ecce regarding
       // location of the cursor after find.
+
+      skip = 1;         // 'last command' is now a findBack
    }
 
    return result;
@@ -1203,15 +1225,22 @@ bool DataBuffer::findBack (const int limit, const std::string text, const int nu
 //
 bool DataBuffer::traverse (const int limit, const std::string text, const int number)
 {
-   bool result;
+   // Set skip 1 if the last command was a traverse and
+   // we are finding the same text.
+   //
+   int skip = ((this->lastSearchType == stTraverse) &&
+               (this->lastSearchText == text)) ? 1 : 0;
 
+   bool result = true;
    for (int j = 0; j < number; j++) {
-      result = this->locate (limit, text, 0);
+      result = this->locate (limit, text, skip);
       if (!result) break;
-      this->lastSearchType = stTraverse;
-      this->lastSearchText = text;
       this->colNo += text.length();  // find after
       this->setChanged ();
+
+      this->lastSearchType = stTraverse;
+      this->lastSearchText = text;
+      skip = 1;         // 'last command' is now a traverse
    }
 
    return result;
@@ -1221,7 +1250,7 @@ bool DataBuffer::traverse (const int limit, const std::string text, const int nu
 //
 bool DataBuffer::traverseBack (const int limit, const std::string text, const int number)
 {
-   // Set skip 1 if the last command was a find and
+   // Set skip 1 if the last command was a traverseBack and
    // we are finding the same text.
    //
    int skip = ((this->lastSearchType == stTraverseBack) &&
@@ -1231,14 +1260,15 @@ bool DataBuffer::traverseBack (const int limit, const std::string text, const in
    for (int j = 0; j < number; j++) {
       result = this->locateBack (limit, text, skip);
       if (!result) break;
-      this->lastSearchType = stTraverseBack;
-      this->lastSearchText = text;
 
       // locateBack goes to start/left of text, even when searching backwards.
       // Note: f- and t- have swapped meanings between ace and ecce re
       // location of the cursor after find.
       //
       this->colNo += text.length();
+
+      this->lastSearchType = stTraverseBack;
+      this->lastSearchText = text;
       skip = 1;         // 'last command' is now a stTraverseBack
    }
 
@@ -1249,7 +1279,7 @@ bool DataBuffer::traverseBack (const int limit, const std::string text, const in
 //
 bool DataBuffer::uncover (const int limit, const std::string text, const int number)
 {
-   // Set skip 1 if the last command was a find and
+   // Set skip 1 if the last command was a uncover and
    // we are finding the same text.
    //
    int skip = ((this->lastSearchType == stUncover) &&
@@ -1300,9 +1330,51 @@ bool DataBuffer::uncover (const int limit, const std::string text, const int num
 //
 bool DataBuffer::uncoverBack (const int limit, const std::string text, const int number)
 {
-   this->lastSearchType = stUncoverBack;
-   this->lastSearchText = text;
-   return false;
+   // Set skip 1 if the last command was an uncoverBack and
+   // we are finding the same text.
+   //
+   int skip = ((this->lastSearchType == stUncoverBack) &&
+               (this->lastSearchText == text)) ? 1 : 0;
+
+   bool result = true;
+   for (int j = 0; j < number; j++) {
+      const Iterator lineWhereWeWere = this->lineIter;
+      const int colWhereWeWere = this->colNo;
+
+      const std::string part2 = this->currentLine ().substr(this->colNo);
+
+      result = this->locateBack (limit, text, skip);
+      if (!result) break;
+
+      // uncover to after, or before looking backwards
+      this->colNo += text.length();
+
+      if (this->lineIter == lineWhereWeWere) {
+         // Found text on the same line.
+         //
+         std::string line = this->currentLine();
+         line.erase (this->colNo, colWhereWeWere - this->colNo);
+         this->replaceLine (line);
+         this->setChanged ();
+
+      } else {
+         const std::string part1 = this->currentLine ().substr(0, this->colNo);
+
+         while (this->lineIter != lineWhereWeWere) {
+            this->removeLine (this->lineIter);  // removeLine does lineIter++
+         }
+
+         const std::string line = part1 + part2;
+         this->replaceLine (line);
+         this->setChanged ();
+      }
+
+      this->lastSearchType = stUncoverBack;
+      this->lastSearchText = text;
+      skip = 1;        // last command is now uncoverBack
+   }
+
+   return result;
 }
 
 //------------------------------------------------------------------------------
