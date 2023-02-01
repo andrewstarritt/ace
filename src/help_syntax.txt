@@ -5,9 +5,12 @@ X[-] [repeat] [qualifier]                         -- non text based commands
 X[-] [search_limit] /text/ [repeat] [qualifier]   -- text based commands
 
 White space is ignored. The text argument only applies to string related
-commands such as F (for Find text) or I (for Insert text). The search limit
-is an optional integer extending or restricting the default number of lines
-that are searched for the specified text.
+commands such as F (for Find text) or I (for Insert text). 
+
+For search related commands, an optional integer can be used to extended or
+restrict the search scope, i.e. the number of lines that are searched for the 
+specified text. '*' or '0' may be used for specifying the maximum search limit
+of 100000 lines (this limit can be modified using the %L command).
 
 The repeat, if allowed, is optional. It specifies the number of times that
 the command is to be executed.
@@ -17,12 +20,12 @@ The qualifier (also optional) is a single character, one of {'\','~','@','?'}.
 no fail status.
 
 '*' or '0' may be used as a combined repeat and no fail qualifier and is 
-equivilent  to 50000@, i.e. essentially do many times as possible, but do
-not fail.
+equivilent to 50000@, i.e. essentially do many times as possible, but do
+not fail (this repeat value can be modified using the %R command).
 
 Special commands are preceeded by a %, and in general do not affect the
 the contents of the file. %C Closes the edit session.
 
-Compound commands may be formed by grouping other commands  in parentheses
+Compound commands may be formed by grouping other commands in parentheses
 Eg: (mk)*  -- this removes every other line from the file (upto line 100000)
 

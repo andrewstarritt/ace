@@ -21,6 +21,10 @@ Options:
 -s, --shell      ace used as shell interpretor, i.e. used in script file like this:
 
                      #!/usr/local/bin/ace -s
+                     #
+                     <ace commands>
+                     %c
+                     # end
 
                  The source file is set to standard input, the target file is
                  set to standard output. Commands are read from the script file,

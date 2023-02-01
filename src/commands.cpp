@@ -147,6 +147,7 @@ bool BasicCommands::execute (DataBuffer& db)
 {
    bool result = false;
 
+   // Zero implies the current extended search limit.
    const int useLimit  = this->limit    == 0     ? Global::getSearchMax() : this->limit;
    const int useRepeat = this->modifier == AMTAP ? Global::getRepeatMax() : this->number;
 
