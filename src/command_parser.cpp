@@ -75,16 +75,18 @@ enum AllowedArgs {
    Code =  0x01,   // exit code or other number
    Lim  =  0x02,   // search limit
    Txt  =  0x04,   // search text - required
-   Last =  0x08,   // last text (&) allowed - optional. On;y applicable when Txt defined.
+   Last =  0x08,   // last text (&) allowed - optional. Only applicable when Txt defined.
    Rep  =  0x10,   // repeat limit - optional
-   Mod  =  0x20    // modified - optional
+   Mod  =  0x20,   // modified - optional
+   Ext  =  0x40    // extended search by default, only F and F-.
 };
 
+// Ca we do flags a la Qt
 
 struct CommandSpecification {
    const BasicCommands::Kinds kind;
    const std::string name;
-   const unsigned allowed;
+   const unsigned allowedArgs;
    const std::string description;
    const std::string failure;
 };
@@ -105,13 +107,13 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
      "Specified file does not exist or not readable" },
    { BC::DeleteText,      "DeleteText",      Lim | Txt | Rep | Mod,
      "Delete next occurance of specified /text/.",
-     "The text does not occur on the current line or at end of file." },
+     "Specified text does not occur within the search limit." },
    { BC::Erase,           "Erase",           Rep | Mod,
      "Erase character to the immediate right of the cursor.",
      "Cursor is at end of line or at end of file." },
-   { BC::Find,            "Find",            Lim | Txt | Last | Rep | Mod,
+   { BC::Find,            "Find",            Lim | Ext | Txt | Last | Rep | Mod,
      "Find next occurance of the specified /text/, cursor located to left of text.",
-     "Specified text does not occur in rest of file." },
+     "Specified text does not occur within the search limit." },
    { BC::Get,             "Get",             Rep | Mod,
      "Get a line from command input stream.",
      "Line consists of a single ':'. Usefull for g*" },
@@ -154,13 +156,13 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::Substitute,      "Substitute",      Txt | Last | Rep | Mod,
      "Replace just found text with specified text, cursor\n"
      "is placed to the right of the replacement text.",
-     "Previous Find, Uncover, or Verify command failed." },
+     "Previous Find, Traverse, Uncover, or Verify command failed." },
    { BC::Traverse,        "Traverse",        Lim | Txt | Last | Rep | Mod,
      "Find after next occurance of specified /text/, cursor located to right of text.",
-     "Specified text does not occur in rest of line." },
+     "Specified text does not occur within the search limit." },
    { BC::Uncover,         "Uncover",         Lim | Txt | Last | Rep | Mod,
      "Uncover (remove) characters upto but not including specified /text/.",
-     "The text does not occur on the current line or at end of file." },
+     "Specified text does not occur within the search limit." },
    { BC::Verify,          "Verify",          Txt | Last | Mod,
      "Compares the text to immediate right of cursor with specified /text/.",
      "The text to the immediate right of cursor does not match specified text." },
@@ -178,13 +180,13 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
      "None." },
    { BC::DeleteBack,      "DeleteBack",      Lim | Txt | Last | Rep | Mod,
      "Delete previous occurance of specified /text/.",
-     "The text does not occur on the current line." },
+     "Specified text does not occur within the search limit." },
    { BC::EraseBack,       "EraseBack",       Rep | Mod,
      "Erase character to the immediate left of the cursor.",
      "Cursor is at start of line or at end of file." },
-   { BC::FindBack,        "FindBack",        Lim | Txt | Last | Rep | Mod,
+   { BC::FindBack,        "FindBack",        Lim | Ext |Txt | Last | Rep | Mod,
      "Find previous occurance of the specified /text/, cursor located to left of text.",
-     "Specified text does not occur in file before current location." },
+     "Specified text does not occur within the search limit." },
    { BC::GetBack,         "GetBack",         Rep | Mod,
      "Get a line from command input stream and move back 1 line.",
      "Line consists of a single ':'. Usefull for g*" },
@@ -219,18 +221,18 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::SubstituteBack,  "SubstituteBack",  Txt | Rep | Mod,
      "Replace just found text with specified text, cursor\n"
      "is placed to the left of the replacement text.",
-     "Previous Find, Uncover, or Verify command failed." },
+     "Previous Find, Traverse, Uncover, or Verify command failed." },
    { BC::TraverseBack,    "TraverseBack",    Lim | Txt | Last | Rep | Mod,
      "Find after previous occurance of specified /text/, cursor located to right of text.",
-     "Specified text does not occur in file before current location." },
+     "Specified text does not occur within the search limit." },
    { BC::UncoverBack,     "UncoverBack",     Lim | Txt | Last | Rep | Mod,
      "Uncover (remove) characters upto and including previous /text/.",
-     "The text does not occur on the current line." },
+     "Specified text does not occur within the search limit." },
    { BC::VerifyBack,      "VerifyBack",      Txt | Last | Mod,
      "Verifiy that the text in the file to the immediate\n"
      "left of the cursor is the same as the specified text.",
      "The text does not match (check is case sensitive)." },
-   { BC::WriteBack,        "WriteBack",        Rep | Mod,
+   { BC::WriteBack,        "WriteBack",      Rep | Mod,
      "Write current line to secondary output file.",
      "Secondary output file not open or at end of file." },
 
@@ -313,6 +315,7 @@ static bool _checked = _check ();
 static const int magicOverflow = -2;  // Given integer > 2147483647
 static const int magicNoInt = -1;     // Okay when optional
 static const int magicAMTAP = 0;      // As many times as possible.
+static const int magicExtLimit = 0;   // Extended search limit
 
 //------------------------------------------------------------------------------
 //
@@ -397,10 +400,16 @@ void CommandParser::commandHelp (const BasicCommands::Kinds kind,
 
    std::string syntax = reverseLookUp (kind);
 
-   const unsigned allowed = commandLookup[kind].allowed;
+   const unsigned allowed = commandLookup[kind].allowedArgs;
 
    if (allowed & Code) syntax += " [Number]";
-   if (allowed & Lim) syntax += " [Limit]";
+   if (allowed & Lim) {
+      if (allowed & Ext) {
+         syntax += " [Limit, default *]";
+      } else {
+         syntax += " [Limit, default 1]";
+      }
+   }
    if (allowed & Txt) {
       if (allowed & Last) {
          syntax += " {/text/,&}";
@@ -408,7 +417,7 @@ void CommandParser::commandHelp (const BasicCommands::Kinds kind,
          syntax += " /text/";
       }
    }
-   if (allowed & Rep) syntax += " [Repeat]";
+   if (allowed & Rep) syntax += " [Repeat, default 1]";
    if (allowed & Mod) syntax += " [{@|?|\\|~}]";
 
    stream << "Syntax: " << syntax << std::endl;
@@ -468,7 +477,7 @@ void CommandParser::help (const std::string& item, std::ostream& stream)
 
    if (item == ")") {
       stream << "End Compound: End of compound command." << std::endl;
-      stream << "Syntax: ) [Repeat] [{@,?,\\,~,}]" << std::endl;
+      stream << "Syntax: ) [Repeat, default 1] [{@,?,\\,~,}]" << std::endl;
       stream << "Failure condition: Unmatched to a start compound command." << std::endl;
       stream << std::endl;
       return;
@@ -750,13 +759,21 @@ CompoundCommands* CommandParser::parseLine (const std::string commandLine,
             BasicCommands::Kinds kind = charLookup [row][col];
 
             if (kind != BasicCommands::Void) {
+               const unsigned int allowed = commandLookup [kind].allowedArgs;
+
                // Set defaults
                //
                int limit = 1;
-               if (kind == BasicCommands::Find ||
-                   kind == BasicCommands::FindBack) limit = 0;  // magic value for search limits
 
-               if (kind == BasicCommands::Close)    limit = 0;
+               // Other search based command, T, U and D all default to current line.
+               //
+               if (allowed & Ext) {
+                  // By default - extended search to end or start of file.
+                  //
+                  limit = magicExtLimit;  // magic value for extended search limits
+               }
+
+               if (kind == BasicCommands::Close)    limit = 0;  // regular exit code
                if (kind == BasicCommands::Abandon)  limit = 2;  // abort exit code
                if (kind == BasicCommands::View)     limit = 0;
 
@@ -764,8 +781,6 @@ CompoundCommands* CommandParser::parseLine (const std::string commandLine,
                bool useLastText = false;
                int repeats = 1;
                AbstractCommands::Modifiers modifier = AbstractCommands::Normal;
-
-               const unsigned int allowed =  commandLookup [kind].allowed;
 
                if ((allowed & Lim) || (allowed & Code)) {
                   // Limit and code number treated the same (at least for now).
