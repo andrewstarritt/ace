@@ -949,27 +949,72 @@ bool DataBuffer::nowBack (const int number)
 }
 
 //------------------------------------------------------------------------------
+// Replace control and non displayable charaters  la vi.
+// Note: this function creates a new string.
+//
+static std::string replace_control_chars (const std::string& text)
+{
+   static const char* blue  = "\033[36;1m";
+   static const char* reset = "\033[00m";
+
+   std::string result;
+
+   for (size_t j = 0 ; j < text.size(); j++) {
+      const char c = text[j];
+      const unsigned char uc = c;
+      if (uc < 0x20) {
+         result += blue;
+         result.push_back ('^');
+         result.push_back (char (int ('A') + uc - 0x01));
+         result += reset;
+
+      } else if ((uc >= 0x80) && (uc < 0xA0)) {
+         result += blue;
+         result.push_back ('~');
+         result.push_back (char (int ('A') + uc - 0x81));
+         result += reset;
+
+      } else {
+         // Just a regular character
+         //
+         result.push_back (c);
+      }
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
 //
 bool DataBuffer::printDirection (const Direction direction, const int number)
 {
-   const int linenoIncDec = (direction == Forward) ? + 1 : -1;
+   static const char* red    = "\033[31;1m";   // cursor
+   static const char* green  = "\033[32;1m";   // end of file
+   static const char* yellow = "\033[33;1m";   // line numbers
+   static const char* blue   = "\033[34;1m";   // end of line
+   static const char* reset  = "\033[00m";
+
+   const int linenoIncDec = (direction == Forward) ? +1 : -1;
    bool result = true;
 
-   // Colourise the cursor.
+   // Colourise the cursor and end of line
    //
-   const std::string cm = "\033[31;1m" + Global::getCursorMark() + "\033[00m";
-   const int n = this->data.size();
+   const std::string cm  = red + Global::getCursorMark() + reset;
+
+   std::string eol = "";
 
    // Setup the format string for consistant line number widths.
    //
    char format [32];
+
    if (Global::getShowLineNumbers()) {
+      const int n = this->data.size();
+
+      // Determine the required line number width.
+      // We always have at least 3
+      //
       int m;
-      if (n < 10) {
-         m = 1;
-      } else if (n < 100) {
-         m = 2;
-      } else if (n < 1000) {
+      if (n < 1000) {
          m = 3;
       } else if (n < 10000) {
          m = 4;
@@ -981,7 +1026,9 @@ bool DataBuffer::printDirection (const Direction direction, const int number)
 
       // Colourise the line numbers - yellow not so good on a white screen.
       //
-      snprintf (format, sizeof (format), "\033[33;1m%%%dd\033[00m ", m);
+      snprintf (format, sizeof (format), "%%%dd ", m);
+
+      eol = blue + std::string (".") + reset;
    }
 
    int lineNo = this->currentLineNo();
@@ -997,17 +1044,19 @@ bool DataBuffer::printDirection (const Direction direction, const int number)
          if (!result) break;
       }
 
-      char lnb [32] = "";
+      std::string lineno = "";
       int lnbLength = 0;
       if (Global::getShowLineNumbers()) {
+         char lnb [8] = "";
          snprintf (lnb, sizeof (lnb), format, lineNo);
-         lnbLength = strlen(lnb) - 12;  // -12 for the colour codes
+         lnbLength = strlen(lnb);
+         lineno = yellow + std::string (lnb) + reset;
       }
 
       if (this->lineIter == this->data.end ()){
          // Colourise the **END**
          //
-         std::cerr << lnb << "\033[32;1m**END**\033[00m" << std::endl;
+         std::cerr << lineno << green << "**END**" << reset << std::endl;
 
       } else {
          const std::string line = this->currentLine ();
@@ -1029,27 +1078,20 @@ bool DataBuffer::printDirection (const Direction direction, const int number)
             const int first = cpl*s;
             const int last = MIN (cpl*(s+1), lineLen);
 
-            // Display the cursore?
+            // Display the cursor?
             //
             if ((number == 1) && (first < this->colNo) && (this->colNo <= last)) {
                // Yes: need the cursor. Cursor shown and end of sub-line rather
                // than at the start of the next sub-line.
                //
-               const std::string part1 = line.substr (first, this->colNo - first);
-               const std::string part2 = line.substr (this->colNo, last - this->colNo);
-               std::cerr << lnb << part1 << cm << part2 << std::endl;
+               const std::string part1 = replace_control_chars (line.substr (first, this->colNo - first));
+               const std::string part2 = replace_control_chars (line.substr (this->colNo, last - this->colNo));
+               std::cerr << lineno << part1 << cm << part2 << eol << std::endl;
             } else {
                // No need for the cursor.
                //
-               const std::string part = line.substr (first, cpl);
-               std::cerr << lnb << part << std::endl;
-            }
-
-            // Clear the line number text.
-            //
-            if (s == 0) {
-               strncpy (lnb, "            ", sizeof (lnb));
-               lnb[lnbLength] = '\0';
+               const std::string part = replace_control_chars (line.substr (first, cpl));
+               std::cerr << lineno << part << eol << std::endl;
             }
          }
       }

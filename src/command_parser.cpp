@@ -263,7 +263,7 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
      "Normal monitoring mode - current line printed only if has been modified.",
      "None." },
    { BC::Numbers,         "line Numbers",    None,
-     "Toggle on/off displaying line numbers.",
+     "Toggle on/off displaying line numbers and end of line marker (pale blue dot).",
      "None." },
    { BC::Prompt,          "Prompt",          None,
      "Toggle off/on the command prompts (>, :, X?, Y?, and/or Z?).",
