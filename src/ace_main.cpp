@@ -2,7 +2,7 @@
  *
  * This file is part of the ACE command line editor.
  *
- * Copyright (C) 1980-2022  Andrew C. Starritt
+ * Copyright (C) 1980-2023  Andrew C. Starritt
  *
  * The ACE program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
@@ -70,7 +70,7 @@ PUT_RESOURCE (warranty,       warranty_txt)
 //
 static void version (std::ostream& stream)
 {
-   stream << "Ace Linux Version 3.1.8  Build " << build_datetime() << std::endl;
+   stream << "Ace Linux Version 3.1.9  Build " << build_datetime() << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ static void help (int argc, char** argv)
       version (std::cout);
       std::cout << "ace is a command line editor, based on the Edinburgh Compatible Context Editor." << std::endl;
       std::cout << std::endl;
-      std::cout << "Copyright (C) 1980-2022  Andrew C. Starritt" << std::endl;
+      std::cout << "Copyright (C) 1980-2023  Andrew C. Starritt" << std::endl;
       std::cout << std::endl;
       help_usage (std::cout);
       std::cout << std::endl;
@@ -560,7 +560,6 @@ int main (int argc, char** argv)
          bool status = doThis->execute (db);
          Global::clearExecutionInProgress();
          AbstractCommands* lastCommand = doThis->getLastCommand();
-         BasicCommands* blc = dynamic_cast <BasicCommands*> (lastCommand);
          if (!status) {
             std::string image = lastCommand ? lastCommand->image() : "None";
             std::cerr << "Command failure: " << image << std::endl;
@@ -568,11 +567,16 @@ int main (int argc, char** argv)
 
          switch (Global::getMode()) {
             case Global::Full:
-               // Always print line (unless last command was a print).
-               //
-               if (!blc || ((blc->getKind() != BasicCommands::Print) &&
-                            (blc->getKind() != BasicCommands::PrintBack))) {
-                  db.print (1);
+               {
+                  // Always print line (unless last successfull command was a print).
+                  //
+                  AbstractCommands* lsc = doThis->getLastSuccessfullCommand();
+                  BasicCommands* blsc = dynamic_cast <BasicCommands*> (lsc);
+
+                  if (!blsc || ((blsc->getKind() != BasicCommands::Print) &&
+                                (blsc->getKind() != BasicCommands::PrintBack))) {
+                     db.print (1);
+                  }
                }
                break;
 

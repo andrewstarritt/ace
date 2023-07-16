@@ -2,7 +2,7 @@
  *
  * This file is part of the ACE command line editor.
  *
- * Copyright (C) 1980-2022  Andrew C. Starritt
+ * Copyright (C) 1980-2023  Andrew C. Starritt
  *
  * The ACE program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
@@ -513,6 +513,7 @@ CompoundCommands::CompoundCommands (const Sequences sequenceIn,
    AbstractCommands (numberIn, modifierIn)
 {
    this->lastCommand = nullptr;
+   this->lastSuccessfullCommand = nullptr;
    this->sequence = sequenceIn;
 }
 
@@ -528,6 +529,13 @@ CompoundCommands::~CompoundCommands ()
 AbstractCommands* CompoundCommands::getLastCommand() const
 {
    return this->lastCommand;
+}
+
+//------------------------------------------------------------------------------
+//
+AbstractCommands* CompoundCommands::getLastSuccessfullCommand() const
+{
+   return this->lastSuccessfullCommand;
 }
 
 //------------------------------------------------------------------------------
@@ -547,6 +555,7 @@ bool CompoundCommands::execute (DataBuffer& db)
    const int useRepeat = this->modifier == AMTAP ? Global::getRepeatMax() : this->number;
 
    this->lastCommand = nullptr;
+   this->lastSuccessfullCommand = nullptr;
    for (int j = 0; j < useRepeat; j++) {
 
       for (Sequences::iterator si = this->sequence.begin ();
@@ -567,6 +576,9 @@ bool CompoundCommands::execute (DataBuffer& db)
             //
             CompoundCommands* cc = dynamic_cast <CompoundCommands*> (command);
             this->lastCommand = cc ? cc->getLastCommand() : command;
+            if (result) {
+               this->lastSuccessfullCommand = cc ? cc->getLastSuccessfullCommand() : command;
+            }
 
             if (!result) break;
          }

@@ -2,7 +2,7 @@
  *
  * This file is part of the ACE command line editor.
  *
- * Copyright (C) 1980-2022  Andrew C. Starritt
+ * Copyright (C) 1980-2023  Andrew C. Starritt
  *
  * The ACE program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
@@ -173,10 +173,12 @@ public:
    bool execute (DataBuffer& db);
 
    AbstractCommands* getLastCommand() const;  // can be nullptr
+   AbstractCommands* getLastSuccessfullCommand() const;  // can be nullptr
 
 private:
    Sequences sequence;
    AbstractCommands* lastCommand;
+   AbstractCommands* lastSuccessfullCommand;
 };
 
 #endif // ACE_COMMANDS_H
