@@ -37,8 +37,8 @@ For more detail, run:
 
     ace --help
 
-_Note:_ When ace edits an existing file, i.e. when no TO parameter, a new file
-is __not__ created in that the inode of the file remains unchanged.
+_Note:_ When ace edits an existing file, i.e. when there is no TO parameter,
+a new file is __not__ created such that the inode of the file remains unchanged.
 This means that ace will __not__ break any file system hard links associated
 with the file.
 
@@ -76,7 +76,7 @@ Help for a specific command is also provided by ace, for example:
     Syntax: B [Repeat] [{@|?|\\|~}]<br>
     Failure condition: None.
 
-The command parameter is case insensitive and may be the typed command
+The command parameter is case insensitive and may be the actual typed command
 recognised by the command parser (B in this example) or the full descriptive
 name (BreakLine).
 
@@ -92,7 +92,7 @@ X, Y and Z quazi commands.
 The macro expansion is a basic text substitution without any real smarts.
 For example, if  X is defined to be: MK, then X\* is expanded to MK\* as
 opposed to (MK)\*.
-There is no implied parentheses.
+There are no implied parentheses.
 It is often sensible to define a macro as a compound command: ( .... )
 
 Macros may be defined in terms of other macros.
@@ -114,7 +114,7 @@ Also fixed some corener case null string search anomalies.
 
 ### 3.1.7
 
-Fixed problem with backward searches.
+Fixed problems with backward searches.
 
 ### 3.1.6
 
@@ -135,7 +135,7 @@ The later saves work in progress to unique temporary file (in the /tmp directory
 Rationalised what is in the inbuilt help and what is in the README.md file,
 in order to minimise unnecessary duplication.
 
-changed the order of link options to keep Debian (bullseye) happy.
+Changed the order of link options in the Makefile to keep Debian (bullseye) happy.
 
 If -o,--option is not defined, look for and use the ACE_OPTION environment
 variable instead.
@@ -202,7 +202,10 @@ Run  ace --help for more detail.
 
 ### Versions 1 and 2
 
-No information available.
+Version 2 was written in Ada.
+Version 1 was written in Coral 66.
+
+No further information is provided.
 
 ## <a name = "history"/>Historical Information
 
@@ -230,8 +233,8 @@ web site, specifically [ecce.c](http://ecce.sourceforge.net/ecce.c).
 
 My 1980s memory of ECCE provided the requirement specification for ACE.
 Since then both ACE and apparently ECCE have changed.
-While ACE divereged from ECCE, ACE will remain ACE, not brought into line
-with ECCE, otherwise I might as well just use ECCE.
+While ACE diverged from ECCE, ACE will remain ACE, and will not brought into
+line with ECCE, otherwise I might as well just use ECCE.
 
 #### Last search, modify and filename strings
 
@@ -395,23 +398,24 @@ Trival example:
 ECCE repeats the last command N times when the sole entry on the command line
 is an integer number.
 ACE does not provide this functionality, however ACE does provide command
-history together with command editing à la bash.
+history together with command editing a&nbsp;la bash.
 
 #### End of Input (Ctrl+D)
 
 ACE interprets this as the command &nbsp; %C1.
-ECCE creates a temp file (e.g. /tmp/file4VjMhp) and stope with exit code 0.
+ECCE creates a temp file (e.g. /tmp/file4VjMhp) and stops with exit code 0.
 
 #### Miscellaneous
 
 There is an implicit P1 executed when ACE starts.
 
-The end of file is denoted by \*\*END\*\* as opposed to \*\*\* End \*\*\*.
+In ACE the end of file is denoted by \*\*END\*\* as opposed
+to \*\*\* End \*\*\* in ECCE.
 
 %A Abandon vs. Abort. Essentially the same idea.
 Abandon allows an exit code to be specified.
 
-The last line has newline (\\n) chacter appended if needs be (just like vi).
+In ACE, the last line has newline (\\n) chacter appended if needs be (just like vi).
 
 #### Size/Implementation
 ECCE is 1863 lines,  885 statements, of C code, while<br>
@@ -421,5 +425,5 @@ Note:<br>
 ECCE - Edinburgh Compatible Context Editor<br>
 ACE  - ACE Context Editor
 
-<font size="-1">Last updated: Thu Jan 26 17:11:28 AEDT 2023</font>
+<font size="-1">Last updated: Thu Apr 25 22:01:33 AEDT 2024</font>
 <br>

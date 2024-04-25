@@ -988,10 +988,12 @@ static std::string replace_control_chars (const std::string& text)
 //
 bool DataBuffer::printDirection (const Direction direction, const int number)
 {
-   static const char* red    = "\033[31;1m";   // cursor
+   // These colour code may be Linux specific....
+   //
+   static const char* red    = "\033[31;1m";   // cursor '^'
    static const char* green  = "\033[32;1m";   // end of file
    static const char* yellow = "\033[33;1m";   // line numbers
-   static const char* blue   = "\033[34;1m";   // end of line
+   static const char* blue   = "\033[34;1m";   // end of line '.'
    static const char* reset  = "\033[00m";
 
    const int linenoIncDec = (direction == Forward) ? +1 : -1;
@@ -1027,7 +1029,6 @@ bool DataBuffer::printDirection (const Direction direction, const int number)
       // Colourise the line numbers - yellow not so good on a white screen.
       //
       snprintf (format, sizeof (format), "%%%dd ", m);
-
       eol = blue + std::string (".") + reset;
    }
 

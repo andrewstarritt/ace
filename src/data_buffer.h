@@ -161,7 +161,7 @@ private:
    std::ifstream inputStream;    // connect and absorbe
    std::ofstream outputStream;   // output and write
 
-   bool changed;        // indicates some print worthy change has occured.
+   bool changed;         // indicates some print worthy change has occured.
 
    // We recall last search type for the substitute command and to allow next
    // instance of the text to be found if/when searching for the same text.

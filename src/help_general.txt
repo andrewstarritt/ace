@@ -10,7 +10,7 @@ TO      target file of the edited output. The TO parameter defaults to FROM.
 Options:
 -c, --command    defines command input file, default is standard in.
 
--r, --report     defines report output file, default is standard out.
+-r, --report     defines report output file, default is standard error.
 
 -o, --option     initial command string, e.g. %Q.
                  See enviromment variables section below.
