@@ -2,24 +2,11 @@
  *
  * This file is part of the ACE command line editor.
  *
- * Copyright (C) 1980-2023  Andrew C. Starritt
- *
- * The ACE program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
- *
- * The ACE program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with the ACE program. If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-FileCopyrightText: 1980-2026  Andrew C. Starritt
+ * SPDX-License-Identifier: GPL-3.0-only
  *
  * Contact details:
  * andrew.starritt@gmail.com
- * PO Box 3118, Prahran East, Victoria 3181, Australia.
  */
 
 #include "commands.h"
@@ -378,6 +365,10 @@ bool BasicCommands::execute (DataBuffer& db)
          result = true;
          break;
 
+      case DelimiterSmart:
+         result = Global::setSmartQuote (text.length() > 0 ? text[0] : ':');
+         break;
+
       case Exchange:
          {  // swap last found/last search
             std::string tempStr = Global::getLastSearch();
@@ -426,8 +417,8 @@ bool BasicCommands::execute (DataBuffer& db)
          result = true;
          break;
 
-      case SetMark:
-         Global::setCursorMark (text);
+      case SetCursorMark:
+         Global::setCursorMark (text.length() > 0 ? text[0] : '^');
          result = true;
          break;
 

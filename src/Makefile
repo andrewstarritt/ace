@@ -19,7 +19,6 @@
 #
 # Contact details:
 # andrew.starritt@gmail.com
-# PO Box 3118, Prahran East, Victoria 3181, Australia.
 #
 
 .PHONY: all install clean uninstall always
@@ -28,7 +27,7 @@ TOP=..
 OBJ_DIR  = $(TOP)/obj
 BIN_DIR  = $(TOP)/bin
 
-OPTIONS += -Wall -pipe -std=gnu++11
+OPTIONS += -Wall -Werror -Wpedantic -std=gnu++11
 
 RESOPTS += --input binary
 RESOPTS += --output elf64-x86-64

@@ -2,24 +2,11 @@
  *
  * This file is part of the ACE command line editor.
  *
- * Copyright (C) 1980-2023  Andrew C. Starritt
- *
- * The ACE program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
- *
- * The ACE program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with the ACE program. If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-FileCopyrightText: 1980-2026  Andrew C. Starritt
+ * SPDX-License-Identifier: GPL-3.0-only
  *
  * Contact details:
  * andrew.starritt@gmail.com
- * PO Box 3118, Prahran East, Victoria 3181, Australia.
  */
 
 #include "command_parser.h"
@@ -45,7 +32,7 @@ static const BasicCommands::Kinds charLookup [26][3] = {
    { BC::Absorbe,     BC::AbsorbeBack,    BC::Abandon        },
    { BC::BreakLine,   BC::BreakLineBack,  BC::Backup         },
    { BC::Connect,     BC::Void,           BC::Close          },
-   { BC::DeleteText,  BC::DeleteBack,     BC::Void           },
+   { BC::DeleteText,  BC::DeleteBack,     BC::DelimiterSmart },
    { BC::Erase,       BC::EraseBack,      BC::Exchange       },
    { BC::Find,        BC::FindBack,       BC::Full           },
    { BC::Get,         BC::GetBack,        BC::Void           },
@@ -60,7 +47,7 @@ static const BasicCommands::Kinds charLookup [26][3] = {
    { BC::Print,       BC::PrintBack,      BC::Prompt         },
    { BC::Quary,       BC::QuaryBack,      BC::Quiet          },
    { BC::Right,       BC::Void,           BC::RepeatSet      },
-   { BC::Substitute,  BC::SubstituteBack, BC::SetMark        },
+   { BC::Substitute,  BC::SubstituteBack, BC::SetCursorMark  },
    { BC::Traverse,    BC::TraverseBack,   BC::TerminalMaxSet },
    { BC::Uncover,     BC::UncoverBack,    BC::Void           },
    { BC::Verify,      BC::VerifyBack,     BC::View           },
@@ -81,7 +68,7 @@ enum AllowedArgs {
    Ext  =  0x40    // extended search by default, only F and F-.
 };
 
-// Ca we do flags a la Qt
+// Can we do flags a la Qt
 
 struct CommandSpecification {
    const BasicCommands::Kinds kind;
@@ -247,6 +234,10 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::Close,           "Close",           Code,
      "Close edit session (exit code 0).",
      "None." },
+   { BC::DelimiterSmart,  "SmartDelimiter" , Txt,
+     "Set the smart string quote character to first character of string.\n"
+     "Empty string yields initial value ':'.",
+     "Character is not one of: / \" ' ! . + ` : = | ^ $ _" },
    { BC::Exchange,        "Exchange",        None,
      "Swap (Exchange) the last found and last inserted strings.",
      "None." },
@@ -262,7 +253,7 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::Monitor,         "Monitor",         None,
      "Normal monitoring mode - current line printed only if has been modified.",
      "None." },
-   { BC::Numbers,         "line Numbers",    None,
+   { BC::Numbers,         "LineNumbers",     None,
      "Toggle on/off displaying line numbers and end of line marker (pale blue dot).",
      "None." },
    { BC::Prompt,          "Prompt",          None,
@@ -274,8 +265,9 @@ static const CommandSpecification commandLookup [BC::NUMBER_OF_KINDS] = {
    { BC::RepeatSet,       "RepeatSet",       Code,
      "Set the repitition limit used for '*' and '0' - default is 50000.",
      "None." },
-   { BC::SetMark,         "SetMark",         Txt,
-     "Set the cursor indication character to first character of the specified string",
+   { BC::SetCursorMark,   "SetCursorMark",   Txt,
+     "Set the cursor indication character to first character of string.\n"
+     "Empty string yields initial value '^'.",
      "None." },
    { BC::TerminalMaxSet,  "TerminalMaxSet",  Code,
      "Set the command line terminal width (min is 32) - default is 160.",
@@ -636,6 +628,7 @@ CompoundCommands* CommandParser::parse (const std::string commandLine)
 // Friendly wrapper macros around these functions.
 // Quazi local functions.
 //
+#define READ_CHAR()      CommandParser::readChar   (commandLine, ptr)
 #define NEXT_CHAR()      CommandParser::nextChar   (commandLine, ptr)
 #define SKIP_SPACES()    CommandParser::skipSpaces (commandLine, ptr)
 #define GET_INT()        CommandParser::getInt     (commandLine, ptr)
@@ -660,7 +653,7 @@ CompoundCommands* CommandParser::parseLine (const std::string commandLine,
 
    int ptr = 0;
    while (ptr < len) {
-      char x = commandLine.at (ptr++);
+      char x = READ_CHAR();
 
       x = toupper (x);
 
@@ -697,7 +690,7 @@ CompoundCommands* CommandParser::parseLine (const std::string commandLine,
 
          // Get number of repeats and the modifier if any.
          //
-         const int temp = GET_INT();  // only none -ve numbers are read.
+         const int temp = GET_INT();  // only non -ve numbers are read.
 
          if (temp == magicOverflow) {
             std::cerr << "Repeat overflow (...)" << std::endl;
@@ -880,10 +873,19 @@ CompoundCommands* CommandParser::parseLine (const std::string commandLine,
 
 //------------------------------------------------------------------------------
 // static
-char CommandParser::nextChar (const std::string commandLine, int& ptr)
+char CommandParser::nextChar (const std::string commandLine, const int ptr)
 {
    const int len = commandLine.length();
    return (ptr < len) ? commandLine.at (ptr) : '\0';
+}
+
+//------------------------------------------------------------------------------
+// static
+char CommandParser::readChar (const std::string commandLine, int& ptr)
+{
+   const char x = nextChar (commandLine, ptr);
+   ptr++;
+   return x;
 }
 
 //------------------------------------------------------------------------------
@@ -933,6 +935,7 @@ int CommandParser::getInt (const std::string commandLine, int& ptr)
 
 //------------------------------------------------------------------------------
 // Defines the allowed quote characters
+// Do not include '\', '~', '@', '?', '&' or '*'
 // static
 bool CommandParser::isQuote (const char x)
 {
@@ -940,6 +943,46 @@ bool CommandParser::isQuote (const char x)
            (x == '.') || (x == '+') || (x == '`') || (x == ':') ||
            (x == '=') || (x == '|') || (x == '^') || (x == '$') ||
            (x == '_'));
+}
+
+//------------------------------------------------------------------------------
+// A smart quote chart is a also a quote char
+// Smart quote allows: \xhh for the specifying a character in hex
+// It also allowq \n, \r, \t and \0.
+// static
+bool CommandParser::isSmartQuote (const char x)
+{
+   return (x == ':');
+}
+
+//------------------------------------------------------------------------------
+//
+static int hexCharToInt (const char ch) {
+   if (ch >= '0' && ch <= '9') {
+      return ch - '0';
+   } else if (ch >= 'A' && ch <= 'F') {
+      return ch - 'A' + 10;
+   } else if (ch >= 'a' && ch <= 'f') {
+      return ch - 'a' + 10;
+   }
+
+   // Indicate invalid hex character.
+   return -1;
+}
+
+//------------------------------------------------------------------------------
+//
+static int hexPairToInt (const char h1, const char h2)
+{
+   int a = hexCharToInt (h1);
+   int b = hexCharToInt (h2);
+
+   if (a >= 0 && b >= 0) {
+      return (a << 4) + b;
+   }
+
+   // Indicate invalid hex pair.
+   return -1;
 }
 
 //------------------------------------------------------------------------------
@@ -956,22 +999,51 @@ CommandParser::getStr (const std::string commandLine, int& ptr, bool& okay)
    //
    const char x = CommandParser::nextChar (commandLine, ptr);
    if (CommandParser::isQuote (x)) {
+      const bool isSmart = CommandParser::isSmartQuote(x);
+
       ptr++;  // "read" the start quote char
+      const char quote = x;
 
       // Simple string match.
       // No escaping the quote using. e.g. \" or allowing "" to mean ".
+      // However look for \xHH where H is a hex char (either case).
       //
-      const char quote = x;
+      char nc;
+      nc = CommandParser::readChar (commandLine, ptr);
+      while (nc != quote && nc != '\0') {
+         if (isSmart && (nc == '\\')) {
+            const char x = CommandParser::readChar (commandLine, ptr);
+            if (x == '\\') {
+               nc = '\\';
+            } else if (x == '0') {
+               nc = '\0';
+            } else if (x == 't') {
+               nc = '\t';
+            } else if (x == 'r') {
+               nc = '\r';
+            } else if (x == 'n') {
+               nc = '\n';
+            } else if ((x == 'x') || (x == 'X')) {
+               // Once we get \x we are commited
+               //
+               const char h1 = CommandParser::readChar (commandLine, ptr);
+               const char h2 = CommandParser::readChar (commandLine, ptr);
+               const int v = hexPairToInt (h1, h2);
+               if (v >= 0) {
+                  nc = char(v);
+               } else {
+                  okay = false;
+                  return "";
+               }
+            } else {
+               // \?
+               okay = false;
+               return "";
+            }
+         }
 
-      char n = CommandParser::nextChar (commandLine, ptr);
-      while (n != quote && n != '\0') {
-         ptr++;  // "read" the string char
-         result.push_back (n);
-         n = CommandParser::nextChar (commandLine, ptr);
-      }
-
-      if (n == quote) {
-         ptr++;  // "read" the end quote char
+         result.push_back (nc);
+         nc = CommandParser::readChar (commandLine, ptr);  // read next char
       }
 
       okay = true;

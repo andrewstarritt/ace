@@ -2,24 +2,11 @@
  *
  * This file is part of the ACE command line editor.
  *
- * Copyright (C) 1980-2023  Andrew C. Starritt
- *
- * The ACE program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
- *
- * The ACE program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with the ACE program. If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-FileCopyrightText: 1980-2026  Andrew C. Starritt
+ * SPDX-License-Identifier: GPL-3.0-only
  *
  * Contact details:
  * andrew.starritt@gmail.com
- * PO Box 3118, Prahran East, Victoria 3181, Australia.
  */
 
 #include "data_buffer.h"
@@ -949,12 +936,14 @@ bool DataBuffer::nowBack (const int number)
 }
 
 //------------------------------------------------------------------------------
-// Replace control and non displayable charaters  la vi.
+// Replace control and non displayable characters.
 // Note: this function creates a new string.
 //
 static std::string replace_control_chars (const std::string& text)
 {
-   static const char* blue  = "\033[36;1m";
+   static const char hex [17] = "0123456789abcdef";
+   static const char* blue   = "\033[34;1m";
+   static const char* navy  = "\033[36;1m";
    static const char* reset = "\033[00m";
 
    std::string result;
@@ -962,20 +951,32 @@ static std::string replace_control_chars (const std::string& text)
    for (size_t j = 0 ; j < text.size(); j++) {
       const char c = text[j];
       const unsigned char uc = c;
-      if (uc < 0x20) {
-         result += blue;
-         result.push_back ('^');
-         result.push_back (char (int ('A') + uc - 0x01));
-         result += reset;
 
-      } else if ((uc >= 0x80) && (uc < 0xA0)) {
-         result += blue;
-         result.push_back ('~');
-         result.push_back (char (int ('A') + uc - 0x81));
+      // Do specials to \0, \t, \n and \r
+      if (c == '\0') {
+         result += navy;
+         result += "\\0";
          result += reset;
-
+      } else if (c == '\t') {
+         result += navy;
+         result += "\\t";
+         result += reset;
+      } else if (c == '\n') {
+         result += navy;
+         result += "\\n";
+         result += reset;
+      } else if (c == '\r') {
+         result += navy;
+         result += "\\r";
+         result += reset;
+      } else if ((uc < 0x20) || (uc >= 0x7f)) {
+         result += blue;
+         result += "\\x";
+         result.push_back (hex [uc / 16]);
+         result.push_back (hex [uc % 16]);
+         result += reset;
       } else {
-         // Just a regular character
+         // Just a regular character.
          //
          result.push_back (c);
       }
@@ -993,7 +994,7 @@ bool DataBuffer::printDirection (const Direction direction, const int number)
    static const char* red    = "\033[31;1m";   // cursor '^'
    static const char* green  = "\033[32;1m";   // end of file
    static const char* yellow = "\033[33;1m";   // line numbers
-   static const char* blue   = "\033[34;1m";   // end of line '.'
+   static const char* navy   = "\033[34;1m";   // end of line '.'
    static const char* reset  = "\033[00m";
 
    const int linenoIncDec = (direction == Forward) ? +1 : -1;
@@ -1001,7 +1002,7 @@ bool DataBuffer::printDirection (const Direction direction, const int number)
 
    // Colourise the cursor and end of line
    //
-   const std::string cm  = red + Global::getCursorMark() + reset;
+   const std::string cm  = std::string(red) + Global::getCursorMark() + reset;
 
    std::string eol = "";
 
@@ -1029,7 +1030,7 @@ bool DataBuffer::printDirection (const Direction direction, const int number)
       // Colourise the line numbers - yellow not so good on a white screen.
       //
       snprintf (format, sizeof (format), "%%%dd ", m);
-      eol = blue + std::string (".") + reset;
+      eol = navy + std::string (".") + reset;
    }
 
    int lineNo = this->currentLineNo();

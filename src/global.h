@@ -2,24 +2,11 @@
  *
  * This file is part of the ACE command line editor.
  *
- * Copyright (C) 1980-2023  Andrew C. Starritt
- *
- * The ACE program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
- *
- * The ACE program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with the ACE program. If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-FileCopyrightText: 1980-2026  Andrew C. Starritt
+ * SPDX-License-Identifier: GPL-3.0-only
  *
  * Contact details:
  * andrew.starritt@gmail.com
- * PO Box 3118, Prahran East, Victoria 3181, Australia.
  */
 
 #ifndef ACE_GLOBAL_H
@@ -67,13 +54,13 @@ public:
    static void setExitCode (const int exitCode);
    static int  getExitCode ();
 
-   static void setMacroX (const std::string text);
+   static void setMacroX (const std::string& text);
    static std::string getMacroX ();
 
-   static void setMacroY (const std::string text);
+   static void setMacroY (const std::string& text);
    static std::string getMacroY ();
 
-   static void setMacroZ (const std::string text);
+   static void setMacroZ (const std::string& text);
    static std::string getMacroZ ();
 
    static void setMode (const Modes mode);
@@ -91,19 +78,22 @@ public:
    static void setRepeatMax (const int max);
    static int getRepeatMax ();
 
-   static void setCursorMark (const std::string text);
-   static std::string getCursorMark ();
+   static void setCursorMark (const char mark);
+   static char getCursorMark ();
+
+   static bool setSmartQuote (const char quote);
+   static char getSmartQuote ();
 
    static void setTerminalMax (const int max);
    static int getTerminalMax ();
 
-   static void setLastSearch (const std::string text);
+   static void setLastSearch (const std::string& text);
    static std::string getLastSearch ();
 
-   static void setLastModify (const std::string text);
+   static void setLastModify (const std::string& text);
    static std::string getLastModify ();
 
-   static void setLastFilename (const std::string filename);
+   static void setLastFilename (const std::string& filename);
    static std::string getLastFilename ();
 
 private:
@@ -130,7 +120,8 @@ private:
    static Modes mode;
    static bool promptOn;
    static bool lineNumbers;
-   static std::string cursorMark;
+   static char cursorMark;
+   static char smartQuote;
 
    static int searchMax;
    static int repeatMax;

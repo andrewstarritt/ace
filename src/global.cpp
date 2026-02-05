@@ -2,24 +2,11 @@
  *
  * This file is part of the ACE command line editor.
  *
- * Copyright (C) 1980-2023  Andrew C. Starritt
- *
- * The ACE program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by the
- * Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
- *
- * The ACE program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with the ACE program. If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-FileCopyrightText: 1980-2026  Andrew C. Starritt
+ * SPDX-License-Identifier: GPL-3.0-only
  *
  * Contact details:
  * andrew.starritt@gmail.com
- * PO Box 3118, Prahran East, Victoria 3181, Australia.
  */
 
 #include "global.h"
@@ -28,6 +15,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <iostream>
+
+#include "command_parser.h"
 
 // all static
 //
@@ -50,7 +39,8 @@ std::string Global::lastModify   = "";
 std::string Global::lastSearch   = "";
 std::string Global::lastFilename = "";
 
-std::string Global::cursorMark   = "^";
+char Global::cursorMark      = '^';
+char Global::smartQuote      = ':';
 
 Global::Modes Global::mode     = Global::Monitor;
 bool          Global::promptOn = true;
@@ -253,7 +243,7 @@ int Global::getExitCode ()
 
 //------------------------------------------------------------------------------
 //
-void Global::setMacroX (const std::string text)
+void Global::setMacroX (const std::string& text)
 {
    Global::macroX = text;
 }
@@ -267,7 +257,7 @@ std::string Global::getMacroX ()
 
 //------------------------------------------------------------------------------
 //
-void Global::setMacroY (const std::string text)
+void Global::setMacroY (const std::string& text)
 {
    Global::macroY = text;
 }
@@ -281,7 +271,7 @@ std::string Global::getMacroY ()
 
 //------------------------------------------------------------------------------
 //
-void Global::setMacroZ (const std::string text)
+void Global::setMacroZ (const std::string& text)
 {
    Global::macroZ = text;
 }
@@ -365,20 +355,34 @@ int Global::getRepeatMax ()
 
 //------------------------------------------------------------------------------
 //
-void Global::setCursorMark (const std::string text)
+void Global::setCursorMark (const char mark)
 {
-   if (text.length() >= 1) {
-      Global::cursorMark = text.substr (0, 1);
-   } else {
-      Global::cursorMark = "^";   // reset default
-   }
+   Global::cursorMark = mark;
 }
 
 //------------------------------------------------------------------------------
 //
-std::string Global::getCursorMark ()
+char Global::getCursorMark ()
 {
    return Global::cursorMark;
+}
+
+//------------------------------------------------------------------------------
+//
+bool Global::setSmartQuote (const char quote)
+{
+   if (CommandParser::isQuote(quote)) {
+      Global::smartQuote = quote;
+      return true;
+   }
+   return false;
+}
+
+//------------------------------------------------------------------------------
+//
+char Global::getSmartQuote ()
+{
+   return Global::smartQuote;
 }
 
 //------------------------------------------------------------------------------
@@ -397,7 +401,7 @@ int Global::getTerminalMax ()
 
 //------------------------------------------------------------------------------
 //
-void Global::setLastSearch (const std::string text)
+void Global::setLastSearch (const std::string& text)
 {
    Global::lastSearch = text;
 }
@@ -411,7 +415,7 @@ std::string Global::getLastSearch ()
 
 //------------------------------------------------------------------------------
 //
-void Global::setLastModify (const std::string text)
+void Global::setLastModify (const std::string& text)
 {
    Global::lastModify = text;
 }
@@ -425,7 +429,7 @@ std::string Global::getLastModify ()
 
 //------------------------------------------------------------------------------
 //
-void Global::setLastFilename (const std::string filename)
+void Global::setLastFilename (const std::string& filename)
 {
    Global::lastFilename = filename;
 }
