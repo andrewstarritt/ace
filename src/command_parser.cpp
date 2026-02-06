@@ -952,7 +952,7 @@ bool CommandParser::isQuote (const char x)
 // static
 bool CommandParser::isSmartQuote (const char x)
 {
-   return (x == ':');
+   return (x == Global::getSmartQuote());
 }
 
 //------------------------------------------------------------------------------

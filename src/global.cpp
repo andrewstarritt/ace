@@ -96,21 +96,23 @@ void Global::show (const int detail, std::ostream& stream)
    // Just do the lot ??
 
    if (detail >= 0) {
-      stream << "Macro X = " << Global::macroX << std::endl;
-      stream << "Macro Y = " << Global::macroY << std::endl;
-      stream << "Macro Z = " << Global::macroZ << std::endl;
+      stream << "Macro X = \"" << Global::macroX << '"' << std::endl;
+      stream << "Macro Y = \"" << Global::macroY << '"' << std::endl;
+      stream << "Macro Z = \"" << Global::macroZ << '"' << std::endl;
    }
 
    if (detail >= 1) {
-      stream << "Last Search: " << Global::lastSearch   << std::endl;
-      stream << "Last Modify: " << Global::lastModify   << std::endl;
-      stream << "Last File:   " << Global::lastFilename << std::endl;
+      stream << "Last Search: \"" << Global::lastSearch   << '"' << std::endl;
+      stream << "Last Modify: \"" << Global::lastModify   << '"' << std::endl;
+      stream << "Last File:   \"" << Global::lastFilename << '"' << std::endl;
    }
 
    if (detail >= 2) {
       stream << "Monitor Mode: " << modeImages [Global::mode] << std::endl;
       stream << "Line Numbers: " << (Global::lineNumbers ? "On" : "Off") << std::endl;
       stream << "Prompting: "    << (Global::promptOn ? "On" : "Off") << std::endl;
+      stream << "Cursor: '"      << Global::cursorMark << "'" << std::endl;
+      stream << "Smart Quote: '" << Global::smartQuote << "'" << std::endl;
    }
 
    if (detail >= 3) {

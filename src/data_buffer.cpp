@@ -942,8 +942,7 @@ bool DataBuffer::nowBack (const int number)
 static std::string replace_control_chars (const std::string& text)
 {
    static const char hex [17] = "0123456789abcdef";
-   static const char* blue   = "\033[34;1m";
-   static const char* navy  = "\033[36;1m";
+   static const char* blue = "\033[36;1m";
    static const char* reset = "\033[00m";
 
    std::string result;
@@ -952,21 +951,21 @@ static std::string replace_control_chars (const std::string& text)
       const char c = text[j];
       const unsigned char uc = c;
 
-      // Do specials to \0, \t, \n and \r
+      // Do specials to \0, \t, \n and \r.
       if (c == '\0') {
-         result += navy;
+         result += blue;
          result += "\\0";
          result += reset;
       } else if (c == '\t') {
-         result += navy;
+         result += blue;
          result += "\\t";
          result += reset;
       } else if (c == '\n') {
-         result += navy;
+         result += blue;
          result += "\\n";
          result += reset;
       } else if (c == '\r') {
-         result += navy;
+         result += blue;
          result += "\\r";
          result += reset;
       } else if ((uc < 0x20) || (uc >= 0x7f)) {
