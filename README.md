@@ -51,7 +51,9 @@ This environment variable provides the default value for the --options option.
 
 ### ACE_QUIET
 
-When defined to be '1', 'Y' or 'y', this is the same as using the --quiet option
+When this 
+This environment variable is defined to be '1', 'Y' or 'y', this is the same
+as using the --quiet option
 
 ## <a name = "syntax"/>Command Syntax
 
@@ -89,6 +91,7 @@ in detail.
 
 Macros are defined by %X, %Y and %Z special commands and are invoked by the
 X, Y and Z quazi commands.
+
 The macro expansion is a basic text substitution without any real smarts.
 For example, if  X is defined to be: MK, then X\* is expanded to MK\* as
 opposed to (MK)\*.
@@ -106,6 +109,39 @@ execution time.
 ### Version 3
 
 Transcoded to C++, and more.
+
+### 3.2.1
+
+Of the allowed quote charcters, the colon quote (':') now looks for and replaces
+a number of excape characters:
+
+    \0 - replaced by the NUL character
+    \r - replaced by the carridge return character
+    \n - replaced by the newline character
+    \t - replaced by the hozizontral tab character
+    \\ - replaced by a single back-slash character
+    \xPQ - replaced by the character represended by hexadecimal PQ  
+           where P and Q and one of '0'-'9', 'A'-'F', 'a'-'f'.
+
+Non printable charcters are now printed in the \xHH format in blue font,
+except NULL, CR, NL and HTAB which are printed as \0, \r, \n and \t
+respectively, also un blue font.
+
+A new special command, %D - SmartDelimiter , has been introduced to allow
+the smart quote to be replaced by aniother quote character, e.g.:
+
+    %D/`/ 
+
+set the smart quote to the back-tick chararcter, while
+
+    %D//
+
+set the smart quote back to the default caracter (:).
+
+Note: the allowd quote characters are one of:
+
+    / " ' ! . + ` : = | ^ $ _
+
 
 ### 3.1.8
 
@@ -309,13 +345,14 @@ W- : WriteBack<br>
 The following special commands have been added to ACE.
 
 %B : Backup     - save current content of the edit session to the to/target file.<br>
+D  : SmartDelimiter - set the smart string quote character.<br>
 %E : Exchange   - swap last search for text and last inserted text strings.<br>
 %I : Intermediate - save current content of the edit session to a temporary file.<br>
 %L : LimitSet   - re-define the of number of lines searched for text.<br>
 %N : Numbers    - toggle on/off line number inclusion with P/P-.<br>
 %P : Prompt     - toggle off/on the '>' command prompt<br>
 %R : RepeatSet  - re-define the of number repeats associated with '\*' or '0'.<br>
-%S : SetMark    - Modify the cursor character - default is ^.<br>
+%S : SetCursorMark  - modify the cursor character - default is ^.<br>
 %T : TerminalMaxSet - set max output length used by the P/P- commands.<br>
 %V : View       - display macro values, last search/insert/file strings. <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -398,7 +435,7 @@ Trival example:
 ECCE repeats the last command N times when the sole entry on the command line
 is an integer number.
 ACE does not provide this functionality, however ACE does provide command
-history together with command editing a&nbsp;la bash.
+history together with command editing similar to bash.
 
 #### End of Input (Ctrl+D)
 
@@ -418,12 +455,15 @@ Abandon allows an exit code to be specified.
 In ACE, the last line has newline (\\n) chacter appended if needs be (just like vi).
 
 #### Size/Implementation
-ECCE is 1863 lines,  885 statements, of C code, while<br>
-ACE  is 4704 lines, 1540 statements, of C++ code.
+
+ECCE is 1863 lines, 1541 statements, of C code, while<br>
+ACE  is 4794 lines, 3226 statements, of C++ code.
+
+using the cloc.
 
 Note:<br>
 ECCE - Edinburgh Compatible Context Editor<br>
 ACE  - ACE Context Editor
 
-<font size="-1">Last updated: Thu Apr 25 22:01:33 AEDT 2024</font>
+<font size="-1">Last updated: Sun Feb  8 14:50:42 2026</font>
 <br>
