@@ -51,7 +51,25 @@ std::string DataBuffer::stdInOut ()
 
 //------------------------------------------------------------------------------
 //
-bool DataBuffer::load (const std::string filename)
+void DataBuffer::create_file_if_required (const std::string& filename)
+{
+   // Open the file in output mode. If the file does not exist, it is created.
+   // std::ofstream handles the underlying system calls (like open() and close())
+   // to create the file without truncating it if it exists (unlike the low-level
+   // creat() call alone)
+   //
+   std::ofstream ofs(filename, std::ios::out | std::ios::app);
+   //if (!ofs) {
+   //   std::cerr << "Error creating or opening file: " << filename << std::endl;
+   //}
+   //
+   // The file is closed automatically when 'ofs' goes out of scope.
+   // The mere act of opening and closing can update the metadata on some filesystems.
+}
+
+//------------------------------------------------------------------------------
+//
+bool DataBuffer::load (const std::string& filename)
 {
    bool result;
 
@@ -69,6 +87,7 @@ bool DataBuffer::load (const std::string filename)
       }
 
    } else {
+      DataBuffer::create_file_if_required (filename);
       std::ifstream src (filename);
       result = src.is_open ();
       if (result) {
@@ -105,7 +124,7 @@ bool DataBuffer::load (const std::string filename)
 
 //------------------------------------------------------------------------------
 //
-bool DataBuffer::save (const std::string filename)
+bool DataBuffer::save (const std::string& filename)
 {
    const int last = this->data.size();
 
@@ -967,6 +986,10 @@ static std::string replace_control_chars (const std::string& text)
       } else if (c == '\r') {
          result += blue;
          result += "\\r";
+         result += reset;
+      } else if (c == 0x1b) {
+         result += blue;
+         result += "\\e";
          result += reset;
       } else if ((uc < 0x20) || (uc >= 0x7f)) {
          result += blue;

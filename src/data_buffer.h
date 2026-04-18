@@ -32,8 +32,8 @@ public:
    //
    static std::string stdInOut ();
 
-   bool load (const std::string filename);
-   bool save (const std::string filename);
+   bool load (const std::string& filename);
+   bool save (const std::string& filename);
 
    void clearChanged ();
    void setChanged ();
@@ -102,6 +102,8 @@ public:
 private:
    typedef std::list<std::string> StringList;
    typedef StringList::iterator   Iterator;
+
+   static void create_file_if_required (const std::string& filename); // quazi touch
 
    // These operate on data (StringList).
    // Apart from removeLine, all operate on the current line

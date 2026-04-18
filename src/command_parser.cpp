@@ -1008,8 +1008,7 @@ CommandParser::getStr (const std::string commandLine, int& ptr, bool& okay)
       // No escaping the quote using. e.g. \" or allowing "" to mean ".
       // However look for \xHH where H is a hex char (either case).
       //
-      char nc;
-      nc = CommandParser::readChar (commandLine, ptr);
+      char nc = CommandParser::readChar (commandLine, ptr);
       while (nc != quote && nc != '\0') {
          if (isSmart && (nc == '\\')) {
             const char x = CommandParser::readChar (commandLine, ptr);
@@ -1023,6 +1022,8 @@ CommandParser::getStr (const std::string commandLine, int& ptr, bool& okay)
                nc = '\r';
             } else if (x == 'n') {
                nc = '\n';
+            } else if (x == 'e') {
+               nc = 0x1b;
             } else if ((x == 'x') || (x == 'X')) {
                // Once we get \x we are commited
                //
